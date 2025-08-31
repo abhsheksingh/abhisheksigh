@@ -20,9 +20,17 @@
       transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
       user-select: none;
     }
-    .dtv-btn:hover { transform: translateY(-1px); background: linear-gradient(180deg,#fff,#ececec); border-color:#cfcfcf; box-shadow:0 6px 14px rgba(0,0,0,0.12); }
-    .dtv-btn.active { border-color:#00897b; box-shadow:0 6px 16px rgba(0,137,123,0.18); background:linear-gradient(180deg,#fff,#ededed); }
-    .dtv-btn .num { width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(145deg,#4db6ac,#00897b); }
+    .dtv-btn:hover { 
+      transform: translateY(-1px); 
+      background: linear-gradient(180deg,#fff,#ececec); 
+      border-color:#cfcfcf; 
+      box-shadow:0 6px 14px rgba(0,0,0,0.12); 
+    }
+    .dtv-btn.active { 
+      border-color:#00897b; 
+      box-shadow:0 6px 16px rgba(0,137,123,0.18); 
+      background:linear-gradient(180deg,#fff,#ededed); 
+    }
 
     .link { fill: none; stroke: #ccc; stroke-width: 2px; }
     .hexagon { fill: #eee; stroke: #999; stroke-width: 2px; }
@@ -37,19 +45,13 @@
 
     /* Responsive height adjustments for the Tech Stack graph */
     @media (max-width: 640px) {
-      #tech-graph-container {
-        padding-bottom: 120% !important; /* taller height for iPhones */
-      }
+      #tech-graph-container { padding-bottom: 120% !important; }
     }
     @media (min-width: 641px) and (max-width: 1024px) {
-      #tech-graph-container {
-        padding-bottom: 90% !important; /* medium screens */
-      }
+      #tech-graph-container { padding-bottom: 90% !important; }
     }
     @media (min-width: 1025px) {
-      #tech-graph-container {
-        padding-bottom: 70% !important; /* default for desktops */
-      }
+      #tech-graph-container { padding-bottom: 70% !important; }
     }
   </style>
 </head>
@@ -59,7 +61,6 @@
   <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl">
     <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
     <div id="buttons" class="flex flex-wrap justify-center gap-3 mb-6"></div>
-    <!-- Responsive container with ID -->
     <div id="tech-graph-container" class="relative w-full pb-[70%]">
       <svg class="absolute inset-0 w-full h-full"></svg>
     </div>
@@ -124,20 +125,17 @@
       node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
       node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
 
-      // Node group for circle + icon
       const nodeGroup = node.filter(d=>d.depth>0)
         .append("g")
         .attr("class","group")
         .style("cursor", "pointer");
 
-      // Circle
       nodeGroup.append("circle")
         .attr("r", nodeRadius)
         .attr("fill", "#ffffff")
         .attr("stroke", "#ccc")
         .attr("stroke-width", 2);
 
-      // Icon
       nodeGroup.filter(d=>d.data.icon).append("image")
         .attr("xlink:href", d=>d.data.icon)
         .attr("x",-iconSize/2)
@@ -146,7 +144,6 @@
         .attr("height", iconSize)
         .on("click",(event,d)=>{ if(d.data.link) window.open(d.data.link,"_blank"); });
 
-      // Hover effect
       nodeGroup.on("mouseover", function() {
           d3.select(this).select("circle").attr("stroke", "#000");
       })
@@ -164,16 +161,16 @@
     fetch("data/categories.json").then(res=>res.json()).then(data=>{
       categories = data;
       const buttonContainer = document.getElementById("buttons");
-      categories.forEach((cat,idx)=>{
+      categories.forEach((cat, idx)=>{
         const btn = document.createElement("button");
-        btn.className="dtv-btn";
-        btn.setAttribute("data-category",cat.category);
-        btn.innerHTML=`<span class="num">${idx+1}</span>${cat.category}`;
-        btn.onclick=()=>drawTree(cat.category);
+        btn.className = "dtv-btn";
+        btn.setAttribute("data-category", cat.category);
+        btn.innerHTML = cat.category; // removed numbering
+        btn.onclick = ()=>drawTree(cat.category);
         buttonContainer.appendChild(btn);
       });
       drawTree(categories[0].category);
-      window.addEventListener("resize",()=>drawTree(currentCategory));
+      window.addEventListener("resize", ()=>drawTree(currentCategory));
     });
 
     // === Education Timeline ===
