@@ -71,77 +71,79 @@
       }); 
     }
 
-    function drawTree(categoryName){
-      currentCategory = categoryName;
-      setActiveButton(categoryName);
+function drawTree(categoryName) {
+  currentCategory = categoryName;
+  setActiveButton(categoryName);
 
-      const container = document.querySelector('.relative');
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+  const container = document.querySelector('.relative');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
 
-      const svg = d3.select("svg");
-      svg.selectAll("*").remove();
+  const svg = d3.select("svg");
+  svg.selectAll("*").remove();
 
-      const g = svg.append("g").attr("transform", `translate(0,50)`);
+  const g = svg.append("g").attr("transform", `translate(0,50)`);
 
-      const category = categories.find(c=>c.category===categoryName);
-      const data = {name: category.category, children: category.technologies};
-      const root = d3.hierarchy(data);
+  const category = categories.find(c => c.category === categoryName);
+  const data = { name: category.category, children: category.technologies };
+  const root = d3.hierarchy(data);
 
-      const treeLayout = d3.tree().size([width, height-100]);
-      treeLayout(root);
+  // ✅ Dynamic vertical spacing
+  const nodeCount = root.leaves().length;
+  const spacing = 90; // vertical gap between nodes
+  const neededHeight = nodeCount * spacing;
 
-      const nodeRadius = width<640?20:30;
-      const iconSize = width<640?20:30;
-      const labelFont = width<640?"10px":"12px";
-      const labelOffset = width<640?nodeRadius+12:nodeRadius+15;
+  const treeLayout = d3.tree().size([width, neededHeight]);
+  const linkGen = d3.linkVertical()
+    .x(d => d.x)
+    .y(d => d.y + 15);
 
-      g.selectAll(".link").data(root.links()).enter().append("path")
-        .attr("class","link")
-        .attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y+15));
+  treeLayout(root);
 
-      const node = g.selectAll(".node").data(root.descendants()).enter()
-        .append("g").attr("class","node").attr("transform", d=>`translate(${d.x},${d.y})`);
+  const nodeRadius = 30;
+  const iconSize = 30;
+  const labelFont = "12px";
+  const labelOffset = nodeRadius + 15;
 
-      node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
-      node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
+  // Links
+  g.selectAll(".link").data(root.links()).enter()
+    .append("path")
+    .attr("class", "link")
+    .attr("d", linkGen);
 
-      // Node group for circle + icon
-      const nodeGroup = node.filter(d=>d.depth>0)
-        .append("g")
-        .attr("class","group")
-        .style("cursor", "pointer");
+  // Nodes
+  const node = g.selectAll(".node").data(root.descendants()).enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", d => `translate(${d.x},${d.y})`);
 
-      // Circle
-      nodeGroup.append("circle")
-        .attr("r", nodeRadius)
-        .attr("fill", "#ffffff")
-        .attr("stroke", "#ccc")
-        .attr("stroke-width", 2);
+  node.filter(d => d.depth === 0)
+    .append("path").attr("d", hexagon(50)).attr("class", "hexagon");
+  node.filter(d => d.depth === 0)
+    .append("text").attr("text-anchor", "middle").attr("dy", 5).text(d => d.data.name);
 
-      // Icon
-      nodeGroup.filter(d=>d.data.icon).append("image")
-        .attr("xlink:href", d=>d.data.icon)
-        .attr("x",-iconSize/2)
-        .attr("y",-iconSize/2)
-        .attr("width", iconSize)
-        .attr("height", iconSize)
-        .on("click",(event,d)=>{ if(d.data.link) window.open(d.data.link,"_blank"); });
+  const nodeGroup = node.filter(d => d.depth > 0).append("g").attr("class", "group").style("cursor", "pointer");
 
-      // Hover effect on the group, only affects the circle inside this group
-      nodeGroup.on("mouseover", function() {
-          d3.select(this).select("circle").attr("stroke", "#000");
-      })
-      .on("mouseout", function() {
-          d3.select(this).select("circle").attr("stroke", "#ccc");
-      });
+  nodeGroup.append("circle")
+    .attr("r", nodeRadius)
+    .attr("fill", "#fff")
+    .attr("stroke", "#ccc")
+    .attr("stroke-width", 2);
 
-      nodeGroup.append("text")
-        .attr("dy",labelOffset)
-        .attr("text-anchor","middle")
-        .style("font-size",labelFont)
-        .text(d=>d.data.name);
-    }
+  nodeGroup.filter(d => d.data.icon).append("image")
+    .attr("xlink:href", d => d.data.icon)
+    .attr("x", -iconSize / 2)
+    .attr("y", -iconSize / 2)
+    .attr("width", iconSize)
+    .attr("height", iconSize)
+    .on("click", (event, d) => { if (d.data.link) window.open(d.data.link, "_blank"); });
+
+  nodeGroup.append("text")
+    .attr("dy", labelOffset)
+    .attr("text-anchor", "middle")
+    .style("font-size", labelFont)
+    .text(d => d.data.name);
+}
 
     fetch("data/categories.json").then(res=>res.json()).then(data=>{
       categories = data;
