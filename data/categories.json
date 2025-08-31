@@ -48,7 +48,7 @@
       { "name": "Linux/Unix", "icon": "icons/linux.svg", "link": "https://www.linux.org/",
        "children":[
           { "name": "Vim", "icon": "icons/editor.svg", "link": "https://www.vim.org/" },
-         { "name": "Nano", "icon": "icons/editor.svg", "link": "https://www.nano-editor.org" },
+          { "name": "Nano", "icon": "icons/editor.svg", "link": "https://www.nano-editor.org" }
        ]
       },
       { "name": "Slack", "icon": "icons/slack.svg", "link": "https://slack.com/" },
