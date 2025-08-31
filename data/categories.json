@@ -15,6 +15,7 @@
     "technologies": [
       { "name": "Looker", "icon": "icons/looker.svg", "link": "https://looker.com/" },
       { "name": "PowerBI", "icon": "icons/powerbi.svg", "link": "https://powerbi.microsoft.com/" }
+      { "name": "D3.js", "icon": "icons/d3.svg", "link": "https://d3js.org" }
     ]
   },
   {
@@ -35,8 +36,7 @@
       { "name": "Pandas", "icon": "icons/pandas.svg", "link": "https://pandas.pydata.org/" },
       { "name": "NumPy", "icon": "icons/numpy.svg", "link": "https://numpy.org/" },
       { "name": "Jupyter", "icon": "icons/jupyter.svg", "link": "https://jupyter.org/" },
-      { "name": "PySpark", "icon": "icons/pyspark.svg", "link": "https://pypi.org/project/pyspark/" },
-      { "name": "Spark", "icon": "icons/spark.svg", "link": "https://spark.apache.org/" },
+      { "name": "PySpark", "icon": "icons/spark.svg", "link": "hhttps://pypi.org/project/pyspark/" },
       { "name": "Airflow", "icon": "icons/airflow.svg", "link": "https://airflow.apache.org/" }
     ]
   },
