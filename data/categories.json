@@ -1,0 +1,62 @@
+[
+  {
+    "category": "Programming",
+    "technologies": [
+      { "name": "Python", "icon": "python.svg", "link": "https://www.python.org/" },
+      { "name": "R", "icon": "r.svg", "link": "https://www.r-project.org/" },
+      { "name": "JavaScript", "icon": "javascript.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+      { "name": "HTML", "icon": "html.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+      { "name": "CSS", "icon": "css.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+      { "name": "PHP", "icon": "php.svg", "link": "https://www.php.net/" }
+    ]
+  },
+  {
+    "category": "Visualization",
+    "technologies": [
+      { "name": "Looker", "icon": "looker.svg", "link": "https://looker.com/" },
+      { "name": "PowerBI", "icon": "powerbi.svg", "link": "https://powerbi.microsoft.com/" }
+    ]
+  },
+  {
+    "category": "Database",
+    "technologies": [
+      { "name": "BigQuery", "icon": "bigquery.svg", "link": "https://cloud.google.com/bigquery" },
+      { "name": "Athena", "icon": "athena.svg", "link": "https://aws.amazon.com/athena/" },
+      { "name": "MySQL", "icon": "mysql.svg", "link": "https://www.mysql.com/" },
+      { "name": "PostgreSQL", "icon": "postgres.svg", "link": "https://www.postgresql.org/" },
+      { "name": "Amazon RDS", "icon": "rds.svg", "link": "https://aws.amazon.com/rds/" },
+      { "name": "MongoDB", "icon": "mongodb.svg", "link": "https://www.mongodb.com/" }
+    ]
+  },
+  {
+    "category": "Data Tools",
+    "technologies": [
+      { "name": "Scikit-learn", "icon": "scikit-learn.svg", "link": "https://scikit-learn.org/" },
+      { "name": "Pandas", "icon": "pandas.svg", "link": "https://pandas.pydata.org/" },
+      { "name": "NumPy", "icon": "numpy.svg", "link": "https://numpy.org/" },
+      { "name": "Jupyter", "icon": "jupyter.svg", "link": "https://jupyter.org/" },
+      { "name": "PySpark", "icon": "pyspark.svg", "link": "https://pypi.org/project/pyspark/" },
+      { "name": "Spark", "icon": "spark.svg", "link": "https://spark.apache.org/" },
+      { "name": "Airflow", "icon": "airflow.svg", "link": "https://airflow.apache.org/" }
+    ]
+  },
+  {
+    "category": "Dev Ops",
+    "technologies": [
+      { "name": "Docker", "icon": "docker.svg", "link": "https://www.docker.com/" },
+      { "name": "Git", "icon": "git.svg", "link": "https://git-scm.com/" },
+      { "name": "Linux/Unix", "icon": "linux.svg", "link": "https://www.linux.org/" },
+      { "name": "Slack", "icon": "slack.svg", "link": "https://slack.com/" },
+      {
+        "name": "Cloud tech", "icon": "vpc.svg", "link": "https://aws.amazon.com/",
+        "children":[
+          { "name": "GCP", "icon": "gcp.svg", "link": "https://cloud.google.com" },
+          { "name": "AWS", "icon": "aws.svg", "link": "https://aws.amazon.com/" },
+          { "name": "VPC", "icon": "vpc.svg", "link": "https://aws.amazon.com/vpc/" }
+        ]
+      },
+      { "name": "Security", "icon": "security.svg", "link": "https://aws.amazon.com/security/" },
+      { "name": "Vim/Nano", "icon": "editor.svg", "link": "https://www.vim.org/" }
+    ]
+  }
+]
