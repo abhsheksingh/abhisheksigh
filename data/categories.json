@@ -14,7 +14,7 @@
     "category": "Visualization",
     "technologies": [
       { "name": "Looker", "icon": "icons/looker.svg", "link": "https://looker.com/" },
-      { "name": "PowerBI", "icon": "icons/powerbi.svg", "link": "https://powerbi.microsoft.com/" }
+      { "name": "PowerBI", "icon": "icons/powerbi.svg", "link": "https://powerbi.microsoft.com/" },
       { "name": "D3.js", "icon": "icons/d3.svg", "link": "https://d3js.org" }
     ]
   },
