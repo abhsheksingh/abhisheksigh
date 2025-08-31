@@ -1,4 +1,4 @@
-<fetch!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -34,6 +34,23 @@
     .timeline-wrapper { width: 100%; overflow-x: auto; }
     .milestone-title { font-weight: bold; font-size: 14px; }
     .milestone-detail { font-size: 12px; fill: #555; }
+
+    /* Responsive height adjustments for the Tech Stack graph */
+    @media (max-width: 640px) {
+      #tech-graph-container {
+        padding-bottom: 120% !important; /* taller height for iPhones */
+      }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+      #tech-graph-container {
+        padding-bottom: 90% !important; /* medium screens */
+      }
+    }
+    @media (min-width: 1025px) {
+      #tech-graph-container {
+        padding-bottom: 70% !important; /* default for desktops */
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-50 flex flex-col items-center min-h-screen gap-10 p-6">
@@ -42,7 +59,8 @@
   <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl">
     <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
     <div id="buttons" class="flex flex-wrap justify-center gap-3 mb-6"></div>
-    <div class="relative w-full pb-[70%]">
+    <!-- Responsive container with ID -->
+    <div id="tech-graph-container" class="relative w-full pb-[70%]">
       <svg class="absolute inset-0 w-full h-full"></svg>
     </div>
   </div>
@@ -75,7 +93,7 @@
       currentCategory = categoryName;
       setActiveButton(categoryName);
 
-      const container = document.querySelector('.relative');
+      const container = document.querySelector('#tech-graph-container');
       const width = container.clientWidth;
       const height = container.clientHeight;
 
@@ -128,7 +146,7 @@
         .attr("height", iconSize)
         .on("click",(event,d)=>{ if(d.data.link) window.open(d.data.link,"_blank"); });
 
-      // Hover effect on the group, only affects the circle inside this group
+      // Hover effect
       nodeGroup.on("mouseover", function() {
           d3.select(this).select("circle").attr("stroke", "#000");
       })
