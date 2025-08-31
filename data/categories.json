@@ -23,15 +23,15 @@
       { "name": "BigQuery", "icon": "icons/bigquery.svg", "link": "https://cloud.google.com/bigquery" },
       { "name": "Athena", "icon": "icons/athena.svg", "link": "https://aws.amazon.com/athena/" },
       { "name": "MySQL", "icon": "icons/mysql.svg", "link": "https://www.mysql.com/" },
-      { "name": "PostgreSQL", "icon": "icons/postgres.svg", "link": "https://www.postgresql.org/" },
-      { "name": "Amazon RDS", "icon": "icons/rds.svg", "link": "https://aws.amazon.com/rds/" },
+      { "name": "Postgres", "icon": "icons/postgres.svg", "link": "https://www.postgresql.org/" },
+      { "name": "RDS", "icon": "icons/rds.svg", "link": "https://aws.amazon.com/rds/" },
       { "name": "MongoDB", "icon": "icons/mongodb.svg", "link": "https://www.mongodb.com/" }
     ]
   },
   {
     "category": "Data Tools",
     "technologies": [
-      { "name": "Scikit-learn", "icon": "icons/scikit-learn.svg", "link": "https://scikit-learn.org/" },
+      { "name": "sk-learn", "icon": "icons/scikit-learn.svg", "link": "https://scikit-learn.org/" },
       { "name": "Pandas", "icon": "icons/pandas.svg", "link": "https://pandas.pydata.org/" },
       { "name": "NumPy", "icon": "icons/numpy.svg", "link": "https://numpy.org/" },
       { "name": "Jupyter", "icon": "icons/jupyter.svg", "link": "https://jupyter.org/" },
@@ -47,7 +47,8 @@
       { "name": "Git", "icon": "icons/git.svg", "link": "https://git-scm.com/" },
       { "name": "Linux/Unix", "icon": "icons/linux.svg", "link": "https://www.linux.org/",
        "children":[
-          { "name": "Vim/Nano", "icon": "icons/editor.svg", "link": "https://www.vim.org/" } 
+          { "name": "Vim", "icon": "icons/editor.svg", "link": "https://www.vim.org/" },
+         { "name": "Nano", "icon": "icons/editor.svg", "link": "https://www.nano-editor.org" },
        ]
       },
       { "name": "Slack", "icon": "icons/slack.svg", "link": "https://slack.com/" },
