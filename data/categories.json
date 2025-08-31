@@ -45,7 +45,11 @@
     "technologies": [
       { "name": "Docker", "icon": "icons/docker.svg", "link": "https://www.docker.com/" },
       { "name": "Git", "icon": "icons/git.svg", "link": "https://git-scm.com/" },
-      { "name": "Linux/Unix", "icon": "icons/linux.svg", "link": "https://www.linux.org/" },
+      { "name": "Linux/Unix", "icon": "icons/linux.svg", "link": "https://www.linux.org/",
+       "children":[
+          { "name": "Vim/Nano", "icon": "icons/editor.svg", "link": "https://www.vim.org/" } 
+       ]
+      },
       { "name": "Slack", "icon": "icons/slack.svg", "link": "https://slack.com/" },
       {
         "name": "Cloud tech", "icon": "icons/vpc.svg", "link": "https://aws.amazon.com/",
@@ -55,8 +59,7 @@
           { "name": "VPC", "icon": "icons/vpc.svg", "link": "https://aws.amazon.com/vpc/" }
         ]
       },
-      { "name": "Security", "icon": "icons/security.svg", "link": "https://aws.amazon.com/security/" },
-      { "name": "Vim/Nano", "icon": "icons/editor.svg", "link": "https://www.vim.org/" }
+      { "name": "Security", "icon": "icons/security.svg", "link": "https://aws.amazon.com/security/" }
     ]
   }
 ]
