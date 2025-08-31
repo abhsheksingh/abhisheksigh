@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<fetch!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -88,22 +88,7 @@
       const data = {name: category.category, children: category.technologies};
       const root = d3.hierarchy(data);
 
-      // Responsive tree layout
-      let treeLayout, linkGen;
-      if (width < 640) {
-        // Small screens → vertical layout
-        treeLayout = d3.tree().size([height - 100, width - 40]);
-        linkGen = d3.linkHorizontal()
-          .x(d => d.y)
-          .y(d => d.x);
-      } else {
-        // Desktop → horizontal layout
-        treeLayout = d3.tree().size([width, height - 100]);
-        linkGen = d3.linkVertical()
-          .x(d => d.x)
-          .y(d => d.y + 15);
-      }
-
+      const treeLayout = d3.tree().size([width, height-100]);
       treeLayout(root);
 
       const nodeRadius = width<640?20:30;
@@ -113,7 +98,7 @@
 
       g.selectAll(".link").data(root.links()).enter().append("path")
         .attr("class","link")
-        .attr("d", linkGen);
+        .attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y+15));
 
       const node = g.selectAll(".node").data(root.descendants()).enter()
         .append("g").attr("class","node").attr("transform", d=>`translate(${d.x},${d.y})`);
@@ -121,17 +106,20 @@
       node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
       node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
 
+      // Node group for circle + icon
       const nodeGroup = node.filter(d=>d.depth>0)
         .append("g")
         .attr("class","group")
         .style("cursor", "pointer");
 
+      // Circle
       nodeGroup.append("circle")
         .attr("r", nodeRadius)
         .attr("fill", "#ffffff")
         .attr("stroke", "#ccc")
         .attr("stroke-width", 2);
 
+      // Icon
       nodeGroup.filter(d=>d.data.icon).append("image")
         .attr("xlink:href", d=>d.data.icon)
         .attr("x",-iconSize/2)
@@ -140,6 +128,7 @@
         .attr("height", iconSize)
         .on("click",(event,d)=>{ if(d.data.link) window.open(d.data.link,"_blank"); });
 
+      // Hover effect on the group, only affects the circle inside this group
       nodeGroup.on("mouseover", function() {
           d3.select(this).select("circle").attr("stroke", "#000");
       })
