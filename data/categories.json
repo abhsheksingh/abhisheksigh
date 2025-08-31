@@ -53,7 +53,7 @@
       },
       { "name": "Slack", "icon": "icons/slack.svg", "link": "https://slack.com/" },
       {
-        "name": "Cloud tech", "icon": "icons/vpc.svg", "link": "https://aws.amazon.com/",
+        "name": "Cloud", "icon": "icons/vpc.svg", "link": "https://aws.amazon.com/",
         "children":[
           { "name": "GCP", "icon": "icons/gcp.svg", "link": "https://cloud.google.com" },
           { "name": "AWS", "icon": "icons/aws.svg", "link": "https://aws.amazon.com/" },
