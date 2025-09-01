@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portfolio Wireframe — Tree Navigation</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<style>
+  :root {
+    --bg: #f7f7f7;
+    --ink: #1f1f1f;
+    --muted: #a8a8a8;
+    --card: #ffffff;
+    --wire: #d9d9d9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  /* Layout */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px; background: var(--card);
+    border-bottom: 1px dashed var(--wire); position: sticky; top: 0; z-index: 10;
+  }
+  header .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #eee, #ddd);
+    border: 2px dashed var(--wire);
+  }
+  header h1 {
+    font-size: 18px; margin: 0; font-weight: 600; letter-spacing: .3px;
+  }
+  header nav { margin-left: auto; display: flex; gap: 8px; }
+  header nav a, .btn {
+    border: 1px dashed var(--wire); background: #fff; color: var(--ink);
+    padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 14px;
+  }
+  header nav a:hover, .btn:hover { background: #fafafa; }
+  main {
+    display: grid; grid-template-columns: 280px 1fr 360px; gap: 16px;
+    padding: 16px; max-width: 1400px; margin: 0 auto;
+  }
+  aside, .canvas, .details {
+    background: var(--card); border: 1px dashed var(--wire); border-radius: 12px;
+  }
+  /* Sidebar */
+  aside { padding: 16px; }
+  .sidebar-section {
+    border: 1px dashed var(--wire); border-radius: 10px; padding: 12px; margin-bottom: 12px;
+    background: #fff;
+  }
+  .muted { color: #666; font-size: 13px; }
+  /* Canvas (center) */
+  .canvas { position: relative; overflow: hidden; }
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border-bottom: 1px dashed var(--wire);
+    position: sticky; top: 0; background: #fff; z-index: 5; border-top-left-radius: 12px; border-top-right-radius: 12px;
+  }
+  #tree {
+    width: 100%; height: calc(100% - 54px);
+  }
+  /* Details (right) */
+  .details { padding: 16px; display: flex; flex-direction: column; }
+  .details h2 { margin: 0 0 8px; font-size: 16px; }
+  .details .card {
+    border: 1px dashed var(--wire); border-radius: 10px; padding: 12px; margin-bottom: 12px;
+    background: #fff;
+  }
+  /* Tree visuals */
+  .link {
+    fill: none;
+    stroke: #bbb;
+    stroke-width: 1.5px;
+    stroke-dasharray: 3 3;
+  }
+  .node circle {
+    fill: #fff;
+    stroke: #333;
+    stroke-width: 1.4px;
+  }
+  .node--collapsed circle {
+    stroke: #555;
+    stroke-dasharray: 3 2;
+  }
+  .node text {
+    font-size: 13px;
+    user-select: none;
+  }
+  .hint { font-size: 12px; color: #666; padding: 8px 12px; border-top: 1px dashed var(--wire); background: #fff; }
+  /* Responsive */
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr; }
+    .details { order: 3; }
+    .canvas { order: 2; height: 60vh; }
+    aside { order: 1; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="avatar" aria-hidden="true"></div>
+    <h1>My Portfolio (Wireframe)</h1>
+    <nav aria-label="Quick nav">
+      <a href="#" aria-disabled="true">Home</a>
+      <a href="#" aria-disabled="true">Projects</a>
+      <a href="#" aria-disabled="true">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <aside aria-label="Profile & Filters">
+      <div class="sidebar-section">
+        <strong>Profile</strong>
+        <p class="muted">Your short intro goes here. This is just a wireframe block.</p>
+      </div>
+      <div class="sidebar-section">
+        <strong>Filters</strong>
+        <p class="muted">Tags, years, tech, etc. (non-functional in wireframe)</p>
+      </div>
+      <div class="sidebar-section">
+        <strong>Legend</strong>
+        <p class="muted">● Section (click to expand/collapse)</p>
+      </div>
+    </aside>
+
+    <section class="canvas" aria-label="Tree canvas">
+      <div class="toolbar" role="toolbar" aria-label="Tree controls">
+        <button class="btn" id="expandAll" type="button">Expand all</button>
+        <button class="btn" id="collapseAll" type="button">Collapse all</button>
+        <button class="btn" id="centerTree" type="button">Center</button>
+        <span class="muted" aria-live="polite" id="status"></span>
+      </div>
+      <svg id="tree" role="img" aria-label="Hierarchical navigation tree"></svg>
+      <div class="hint">Tip: drag to pan, scroll to zoom. Click a node to toggle and view details.</div>
+    </section>
+
+    <section class="details" aria-live="polite" aria-label="Section details">
+      <h2 id="detail-title">Select a section</h2>
+      <div class="card" id="detail-body">
+        <p class="muted">Click any node in the tree to preview its content here.</p>
+      </div>
+      <div class="card">
+        <strong>Wireframe Notes</strong>
+        <ul class="muted" style="padding-left: 18px; margin: 8px 0;">
+          <li>Replace the tree data with your real portfolio structure.</li>
+          <li>Hook node clicks to route or scroll to sections.</li>
+          <li>Style is intentionally minimal and grayscale for wireframe feel.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- D3 for the collapsible tree -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script>
+    // ---- Sample hierarchical data (edit to match your portfolio) ----
+    const data = {
+      name: "Portfolio",
+      blurb: "Top-level overview of your site.",
+      children: [
+        {
+          name: "About",
+          blurb: "Bio, values, resume snapshot.",
+          children: [
+            { name: "Bio", blurb: "Short story & timeline." },
+            { name: "Resume", blurb: "Experience & education." },
+            { name: "Testimonials", blurb: "Client quotes." }
+          ]
+        },
+        {
+          name: "Projects",
+          blurb: "Highlighted work broken into categories.",
+          children: [
+            {
+              name: "Featured",
+              blurb: "Hero projects with case studies.",
+              children: [
+                { name: "Project A", blurb: "Problem → solution → impact." },
+                { name: "Project B", blurb: "Design system & metrics." }
+              ]
+            },
+            {
+              name: "All Projects",
+              blurb: "Grid of the rest.",
+              children: [
+                { name: "Mobile App", blurb: "iOS/Android." },
+                { name: "Web App", blurb: "React, Flask." },
+                { name: "Open Source", blurb: "GitHub contributions." }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Skills",
+          blurb: "Tools, stacks, strengths.",
+          children: [
+            { name: "Frontend", blurb: "HTML, CSS, JS, React." },
+            { name: "Backend", blurb: "Python, Node, APIs." },
+            { name: "Data/ML", blurb: "Pandas, basic ML." }
+          ]
+        },
+        {
+          name: "Contact",
+          blurb: "How to reach you.",
+          children: [
+            { name: "Email", blurb: "hello@example.com" },
+            { name: "Social", blurb: "LinkedIn, GitHub, Twitter." },
+            { name: "Newsletter", blurb: "Occasional updates." }
+          ]
+        }
+      ]
+    };
+
+    // ---- Setup dimensions & SVG ----
+    const svg = d3.select("#tree");
+    const margin = { top: 24, right: 60, bottom: 24, left: 60 };
+    let width = svg.node().clientWidth;
+    let height = svg.node().clientHeight;
+
+    const gRoot = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Zoom/pan
+    const zoom = d3.zoom()
+      .scaleExtent([0.4, 2.5])
+      .on("zoom", (event) => gRoot.attr("transform", event.transform));
+    svg.call(zoom);
+
+    // Tree layout
+    const layout = d3.tree().nodeSize([28, 180]); // [vertical, horizontal spacing]
+
+    // Convert to hierarchy
+    const root = d3.hierarchy(data);
+    root.x0 = height / 2;
+    root.y0 = 0;
+
+    // Collapse helper: move children to _children
+    function collapse(d) {
+      if (d.children) {
+        d._children = d.children;
+        d._children.forEach(collapse);
+        d.children = null;
+      }
+    }
+    // Expand helper
+    function expand(d) {
+      if (d._children) {
+        d.children = d._children;
+        d._children = null;
+      }
+      if (d.children) d.children.forEach(expand);
+    }
+    // Initialize: start collapsed except first level
+    root.children?.forEach(collapse);
+
+    const linkGroup = gRoot.append("g").attr("class", "links");
+    const nodeGroup = gRoot.append("g").attr("class", "nodes");
+
+    const statusEl = document.getElementById("status");
+    const detailTitle = document.getElementById("detail-title");
+    const detailBody = document.getElementById("detail-body");
+
+    function update(source) {
+      // Compute the new tree layout.
+      layout.size([Math.max(200, countNodes(root) * 22), width - margin.left - margin.right]);
+      const treeData = layout(root);
+
+      const nodes = treeData.descendants();
+      const links = treeData.links();
+
+      // Normalize for fixed depth (indent)
+      nodes.forEach(d => d.y = d.depth * 140);
+
+      // --- Nodes ---
+      const node = nodeGroup.selectAll("g.node")
+        .data(nodes, d => d.id || (d.id = crypto.randomUUID()));
+
+      const nodeEnter = node.enter().append("g")
+        .attr("class", d => "node" + (d._children ? " node--collapsed" : ""))
+        .attr("transform", _ => `translate(${source.y0 || 0},${source.x0 || 0})`)
+        .attr("tabindex", 0)
+        .on("click", (_, d) => onNodeClick(d))
+        .on("keydown", (event, d) => {
+          if (event.key === "Enter" || event.key === " ") onNodeClick(d);
+        });
+
+      nodeEnter.append("circle")
+        .attr("r", 0)
+        .transition().duration(250)
+        .attr("r", 8);
+
+      nodeEnter.append("text")
+        .attr("dy", "0.32em")
+        .attr("x", d => d.children || d._children ? 14 : 12)
+        .text(d => d.data.name)
+        .style("fill-opacity", 0)
+        .transition().duration(250)
+        .style("fill-opacity", 1);
+
+      const nodeUpdate = nodeEnter.merge(node);
+      nodeUpdate
+        .attr("class", d => "node" + (d._children ? " node--collapsed" : ""))
+        .transition().duration(250)
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+      nodeUpdate.select("circle")
+        .attr("r", 8);
+
+      const nodeExit = node.exit().transition().duration(200)
+        .attr("transform", _ => `translate(${source.y},${source.x})`)
+        .remove();
+
+      nodeExit.select("circle").attr("r", 0);
+      nodeExit.select("text").style("fill-opacity", 0);
+
+      // --- Links ---
+      const link = linkGroup.selectAll("path.link")
+        .data(links, d => d.target.id);
+
+      const diagonal = d3.linkHorizontal()
+        .x(d => d.y)
+        .y(d => d.x);
+
+      const linkEnter = link.enter().append("path")
+        .attr("class", "link")
+        .attr("d", _ => {
+          const o = { x: source.x0 || 0, y: source.y0 || 0 };
+          return diagonal({ source: o, target: o });
+        });
+
+      linkEnter.merge(link).transition().duration(250)
+        .attr("d", diagonal);
+
+      link.exit().transition().duration(200)
+        .attr("d", _ => {
+          const o = { x: source.x, y: source.y };
+          return diagonal({ source: o, target: o });
+        })
+        .remove();
+
+      // Stash old positions for transition.
+      nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+
+      statusEl.textContent = `${nodes.length} nodes, ${links.length} links`;
+    }
+
+    function countNodes(d) {
+      let n = 1;
+      if (d.children) d.children.forEach(c => n += countNodes(c));
+      if (d._children) d._children.forEach(c => n += countNodes(c));
+      return n;
+    }
+
+    function onNodeClick(d) {
+      // Toggle
+      if (d.children) {
+        d._children = d.children; d.children = null;
+      } else {
+        d.children = d._children; d._children = null;
+      }
+      // Update details panel
+      detailTitle.textContent = d.data.name;
+      detailBody.innerHTML = `
+        <p>${d.data.blurb || "No description yet."}</p>
+        <div class="muted">Depth: ${d.depth} • Children: ${(d.children?.length || d._children?.length || 0)}</div>
+      `;
+      update(d);
+    }
+
+    // Expand/Collapse controls
+    document.getElementById("expandAll").addEventListener("click", () => { expand(root); update(root); });
+    document.getElementById("collapseAll").addEventListener("click", () => {
+      root.children?.forEach(collapse);
+      update(root);
+    });
+    document.getElementById("centerTree").addEventListener("click", () => {
+      // Smoothly center the root
+      const t = d3.zoomIdentity.translate((width/2) - 60, (height/2) - 40).scale(1);
+      svg.transition().duration(300).call(zoom.transform, t);
+    });
+
+    // Initial render + center
+    update(root);
+    window.addEventListener("resize", () => {
+      width = svg.node().clientWidth;
+      height = svg.node().clientHeight;
+      update(root);
+    });
+    // Slight initial center
+    const init = d3.zoomIdentity.translate(120, (height/2) - 40).scale(1);
+    svg.call(zoom.transform, init);
+  </script>
+</body>
+</html>
