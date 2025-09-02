@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abhishek Singh - Portfolio Tree</title>
+<style>
+  body {
+    margin: 0; font-family: sans-serif; color: #333;
+    display: flex; flex-direction: column; height: 100vh;
+    /* Excalidraw-style dotted background */
+    background-color: #f9f9f9;
+    background-image: radial-gradient(#ddd 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  header {
+    text-align: center; padding: 1rem;
+    border-bottom: 1px dashed #ccc; background: rgba(255,255,255,0.9);
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  main {
+    flex: 1; display: flex; overflow: hidden;
+  }
+  #tree-container {
+    flex: 2; display: flex; justify-content: center; align-items: center;
+    overflow: hidden;
+  }
+  svg { width: 100%; height: 100%; }
+  #detail-panel {
+    flex: 1; max-width: 350px;
+    border-left: 1px solid #ddd;
+    background: rgba(255,255,255,0.9);
+    padding: 1rem; overflow-y: auto;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+    backdrop-filter: blur(4px);
+    transition: transform 0.3s ease-in-out;
+  }
+  #detail-panel.hidden {
+    transform: translateX(100%);
+  }
+  .panel-title {
+    font-size: 18px; font-weight: bold; margin-bottom: 10px;
+  }
+  .panel-content {
+    font-size: 14px; line-height: 1.5;
+  }
+  .link {
+    fill: none; stroke: #bbb; stroke-width: 1.5px; stroke-dasharray: 3 3;
+  }
+  .node circle {
+    fill: #fff; stroke: #333; stroke-width: 1.5px;
+  }
+  .node--collapsed circle {
+    stroke-dasharray: 4 2; /* dotted for collapsed */
+  }
+  .node--expanded circle {
+    stroke-dasharray: none; /* solid for expanded/leaf */
+  }
+  .node text {
+    font-size: 13px; user-select: none;
+  }
+  .root-label {
+    font-size: 14px; font-weight: bold; fill: #0077ff;
+  }
+  /* Responsive: detail panel below on mobile */
+  @media (max-width: 768px) {
+    main { flex-direction: column; }
+    #detail-panel {
+      max-width: none; border-left: none; border-top: 1px solid #ddd;
+      transform: translateY(100%);
+    }
+    #detail-panel.hidden {
+      transform: translateY(100%);
+    }
+    #detail-panel.visible {
+      transform: translateY(0);
+    }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Portfolio Tree</h1>
+  </header>
+
+  <main>
+    <div id="tree-container">
+      <svg id="tree"></svg>
+    </div>
+    <aside id="detail-panel" class="hidden">
+      <div class="panel-title">Select a section</div>
+      <div class="panel-content">Click on a node to see more details here.</div>
+    </aside>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script>
+const data = {
+  name: "Abhishek Singh",
+  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
+  blurb: "Welcome to my portfolio! Explore my projects, skills, and journey.",
+  children: [
+    { name: "About", blurb: "Learn more about me and my journey.", children: [
+      { name: "Bio", blurb: "Personal background and story." },
+      { name: "Resume", blurb: "Professional resume and experience." }
+    ]},
+    { name: "Projects", blurb: "Explore my featured and past projects.", children: [
+      { name: "Featured", blurb: "Highlighted projects I am proud of.", children: [
+        { name: "Project A", blurb: "Description of Project A." },
+        { name: "Project B", blurb: "Description of Project B." }
+      ]},
+      { name: "All Projects", blurb: "A full list of all my projects." }
+    ]},
+    { name: "Skills", blurb: "My technical and soft skills." },
+    { name: "Contact", blurb: "Ways to reach me." }
+  ]
+};
+
+// Setup SVG + group
+const svg = d3.select("#tree"),
+      g = svg.append("g").attr("transform", "translate(40,40)");
+
+let width = svg.node().clientWidth,
+    height = svg.node().clientHeight;
+
+let i = 0;
+const duration = 400;
+
+const treeLayout = d3.tree().size([width - 100, height - 120]);
+let root = d3.hierarchy(data, d => d.children);
+root.x0 = width / 2;
+root.y0 = 0;
+
+// Collapse initially
+root.children.forEach(collapse);
+update(root);
+
+function collapse(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+
+// Detail panel function
+function showDetails(d) {
+  const panel = document.getElementById("detail-panel");
+  panel.querySelector(".panel-title").textContent = d.data.name;
+  panel.querySelector(".panel-content").textContent = d.data.blurb || "No details available.";
+  
+  panel.classList.remove("hidden");
+  panel.classList.add("visible");
+}
+
+function update(source) {
+  treeLayout(root);
+
+  const nodes = root.descendants();
+  const links = root.links();
+
+  nodes.forEach(d => d.y = d.depth * 100);
+
+  // --- Nodes ---
+  let node = g.selectAll("g.node")
+    .data(nodes, d => d.id || (d.id = ++i));
+
+  const nodeEnter = node.enter().append("g")
+    .attr("class", d => {
+      if (d.depth === 0) return "node root-node";
+      if (d._children) return "node node--collapsed";
+      return "node node--expanded";
+    })
+    .attr("transform", d => `translate(${source.x0},${source.y0})`)
+    .on("click", (_, d) => {
+      // Expand/collapse toggle
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update(d);
+      showDetails(d);
+    });
+
+  // Circle for non-root
+  nodeEnter.filter(d => d.depth !== 0)
+    .append("circle")
+    .attr("r", 1e-6);
+
+  // Root image
+  nodeEnter.filter(d => d.depth === 0)
+    .append("image")
+    .attr("xlink:href", d => d.data.photo)
+    .attr("x", -25).attr("y", -25)
+    .attr("width", 50).attr("height", 50)
+    .style("clip-path", "circle(25px at center)");
+
+  // Labels
+  nodeEnter.append("text")
+    .attr("dy", d => d.depth === 0 ? 40 : -24)
+    .attr("text-anchor", "middle")
+    .attr("class", d => d.depth === 0 ? "root-label" : "")
+    .text(d => d.data.name)
+    .style("fill-opacity", 1e-6);
+
+  const nodeUpdate = nodeEnter.merge(node);
+
+  nodeUpdate.transition()
+    .duration(duration)
+    .attr("transform", d => `translate(${d.x},${d.y})`);
+
+  nodeUpdate.select("circle").attr("r", 18);
+
+  nodeUpdate.select("text").style("fill-opacity", 1);
+
+  nodeUpdate.attr("class", d => {
+    if (d.depth === 0) return "node root-node";
+    if (d._children) return "node node--collapsed";
+    return "node node--expanded";
+  });
+
+  const nodeExit = node.exit().transition()
+    .duration(duration)
+    .attr("transform", d => `translate(${source.x},${source.y})`)
+    .remove();
+
+  nodeExit.select("circle").attr("r", 1e-6);
+  nodeExit.select("text").style("fill-opacity", 1e-6);
+
+  // --- Links ---
+  let link = g.selectAll("path.link")
+    .data(links, d => d.target.id);
+
+  const linkEnter = link.enter().insert("path", "g")
+    .attr("class", "link")
+    .attr("d", d => {
+      let o = {x: source.x0, y: source.y0};
+      return d3.linkVertical().x(d => d.x).y(d => d.y)({source: o, target: o});
+    });
+
+  link.merge(linkEnter).transition()
+    .duration(duration)
+    .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y));
+
+  link.exit().transition()
+    .duration(duration)
+    .attr("d", d => {
+      let o = {x: source.x, y: source.y};
+      return d3.linkVertical().x(d => d.x).y(d => d.y)({source: o, target: o});
+    })
+    .remove();
+
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+}
+
+// Resize handler
+function resize() {
+  width = svg.node().clientWidth;
+  height = svg.node().clientHeight;
+  treeLayout.size([width - 100, height - 120]);
+  update(root);
+}
+window.addEventListener("resize", resize);
+</script>
+</body>
+</html>
