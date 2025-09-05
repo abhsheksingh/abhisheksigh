@@ -4,223 +4,115 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tech Stack & Education • Abhishek Singh</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/react-flow-renderer/dist/style.css" />
+  <script src="https://unpkg.com/react-flow-renderer/dist/react-flow-renderer.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/d3-milestones/build/d3-milestones.css">
   <script src="https://unpkg.com/d3-milestones/build/d3-milestones.min.js"></script>
 
   <style>
-    /* Buttons & D3 styling */
-    .dtv-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 10px 16px; border-radius: 9999px; border: 1px solid #e2e2e2;
-      background: linear-gradient(180deg, #ffffff, #f3f3f3);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      color: #333; font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-      user-select: none;
-    }
-    .dtv-btn:hover { 
-      transform: translateY(-1px); 
-      background: linear-gradient(180deg,#fff,#ececec); 
-      border-color:#cfcfcf; 
-      box-shadow:0 6px 14px rgba(0,0,0,0.12); 
-    }
-    .dtv-btn.active { 
-      border-color:#00897b; 
-      box-shadow:0 6px 16px rgba(0,137,123,0.18); 
-      background:linear-gradient(180deg,#fff,#ededed); 
-    }
-
-    .link { fill: none; stroke: #ccc; stroke-width: 2px; }
-    .hexagon { fill: #eee; stroke: #999; stroke-width: 2px; }
-    .node text { fill: #333; }
-
-    /* Education timeline tweaks */
-    #education-timeline { width: 100%; height: 350px; max-width: 1000px; margin: auto; }
-    #education-timeline svg { width: 100% !important; height: auto !important; overflow: visible !important; padding-right: 80px; }
-    .timeline-wrapper { width: 100%; overflow-x: auto; }
-    .milestone-title { font-weight: bold; font-size: 14px; }
-    .milestone-detail { font-size: 12px; fill: #555; }
-
-    /* Responsive height adjustments for the Tech Stack graph */
-    @media (max-width: 640px) {
-      #tech-graph-container { padding-bottom: 120% !important; }
-    }
-    @media (min-width: 641px) and (max-width: 1024px) {
-      #tech-graph-container { padding-bottom: 90% !important; }
-    }
-    @media (min-width: 1025px) {
-      #tech-graph-container { padding-bottom: 70% !important; }
-    }
+    body, html { margin:0; padding:0; font-family:sans-serif; background:#f5f5f5; }
+    .card { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); padding:20px; width:100%; max-width:1200px; margin:20px auto; }
+    #tech-root { width:100%; height:500px; }
+    .react-flow__node { padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; }
+    .react-flow__node:hover { border-color:#00897b; }
+    .timeline-wrapper { width:100%; overflow-x:auto; }
+    #education-timeline { width:100%; height:350px; max-width:1000px; margin:auto; }
+    .milestone-title { font-weight:bold; font-size:14px; }
+    .milestone-detail { font-size:12px; fill:#555; }
   </style>
 </head>
-<body class="bg-gray-50 flex flex-col items-center min-h-screen gap-10 p-6">
+<body class="flex flex-col items-center gap-10 p-6">
 
   <!-- Tech Stack Card -->
-  <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl">
+  <div class="card">
     <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
-    <div id="buttons" class="flex flex-wrap justify-center gap-3 mb-6"></div>
-    <div id="tech-graph-container" class="relative w-full pb-[70%]">
-      <svg class="absolute inset-0 w-full h-full"></svg>
-    </div>
+    <div id="tech-root"></div>
   </div>
 
   <!-- Education Card -->
-  <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl">
+  <div class="card">
     <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Education</h2>
     <div class="timeline-wrapper">
       <div id="education-timeline"></div>
     </div>
   </div>
 
-  <script>
-    // === Tech Stack D3 ===
-    let categories = [];
-    let currentCategory = null;
+  <script type="text/javascript">
+    const { useState, useCallback } = React;
+    const { ReactFlowProvider, ReactFlow, MiniMap, Controls, Background } = window.ReactFlowRenderer;
 
-    function hexagon(r){ 
-      let angle=Math.PI/3; 
-      return d3.range(6).map(i=>[r*Math.cos(angle*i), r*Math.sin(angle*i)]).join("L")+"Z"; 
-    }
+    // Sample hierarchical tech stack data
+    const techData = {
+      name: "Tech Stack",
+      children: [
+        { name: "Frontend", children: [{name:"HTML"},{name:"CSS"},{name:"JavaScript"},{name:"React"}] },
+        { name: "Backend", children: [{name:"Node.js"},{name:"Python"},{name:"Flask"}] },
+        { name: "Database", children: [{name:"PostgreSQL"},{name:"MongoDB"}] }
+      ]
+    };
 
-    function setActiveButton(categoryName){ 
-      document.querySelectorAll('.dtv-btn').forEach(btn=>{
-        btn.classList.toggle('active', btn.getAttribute('data-category')===categoryName);
-      }); 
-    }
+    let nodeIdCounter = 0;
+    function generateFlowNodesEdges(node, parentId=null, x=0, y=0) {
+      const nodeId = "node-" + nodeIdCounter++;
+      const nodes = [{ id: nodeId, data: { label: node.name }, position: { x, y } }];
+      const edges = [];
 
-    function drawTree(categoryName){
-      currentCategory = categoryName;
-      setActiveButton(categoryName);
-
-      const container = document.querySelector('#tech-graph-container');
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-
-      const svg = d3.select("svg");
-      svg.selectAll("*").remove();
-
-      const g = svg.append("g").attr("transform", `translate(0,50)`);
-
-      const category = categories.find(c=>c.category===categoryName);
-      const data = {name: category.category, children: category.technologies};
-      const root = d3.hierarchy(data);
-
-      // collapse all children initially
-      root.children?.forEach(collapse);
-
-      const treeLayout = d3.tree().size([width, height-100]);
-      treeLayout(root);
-
-      const nodeRadius = width<640?20:30;
-      const iconSize = width<640?20:30;
-      const labelFont = width<640?"10px":"12px";
-      const labelOffset = width<640?nodeRadius+12:nodeRadius+15;
-
-      // draw links
-      g.selectAll(".link")
-        .data(root.links(), d => d.target.data.name)
-        .enter()
-        .append("path")
-        .attr("class","link")
-        .attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y+15));
-
-      // draw nodes
-      const node = g.selectAll(".node")
-        .data(root.descendants(), d => d.data.name)
-        .enter()
-        .append("g")
-        .attr("class","node")
-        .attr("transform", d=>`translate(${d.x},${d.y})`)
-        .style("cursor","pointer")
-        .on("click",(event,d)=>{
-          toggleChildren(d);
-          update(root);
+      if(node.children){
+        node.children.forEach((child,index)=>{
+          const childY = y + 120;
+          const childX = x + index*200 - ((node.children.length-1)*100);
+          const { nodes: childNodes, edges: childEdges } = generateFlowNodesEdges(child, nodeId, childX, childY);
+          nodes.push(...childNodes);
+          edges.push(...childEdges);
+          edges.push({ id: `${nodeId}-${childNodes[0].id}`, source: nodeId, target: childNodes[0].id });
         });
-
-      node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
-      node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
-
-      const nodeGroup = node.filter(d=>d.depth>0).append("g").attr("class","group");
-
-      nodeGroup.append("circle")
-        .attr("r", nodeRadius)
-        .attr("fill", "#ffffff")
-        .attr("stroke", "#ccc")
-        .attr("stroke-width", 2);
-
-      nodeGroup.filter(d=>d.data.icon).append("image")
-        .attr("xlink:href", d=>d.data.icon)
-        .attr("x",-iconSize/2)
-        .attr("y",-iconSize/2)
-        .attr("width", iconSize)
-        .attr("height", iconSize)
-        .on("click",(event,d)=>{
-          event.stopPropagation(); // don’t collapse when clicking icon
-          if(d.data.link) window.open(d.data.link,"_blank");
-        });
-
-      nodeGroup.on("mouseover", function() {
-        d3.select(this).select("circle").attr("stroke", "#000");
-      })
-      .on("mouseout", function() {
-        d3.select(this).select("circle").attr("stroke", "#ccc");
-      });
-
-      nodeGroup.append("text")
-        .attr("dy",labelOffset)
-        .attr("text-anchor","middle")
-        .style("font-size",labelFont)
-        .text(d=>d.data.name);
-
-      // helper functions for collapse/expand
-      function collapse(d){
-        if (d.children){
-          d._children = d.children;
-          d._children.forEach(collapse);
-          d.children = null;
-        }
       }
-      function toggleChildren(d){
-        if (d.children){
-          d._children = d.children;
-          d.children = null;
-        } else {
-          d.children = d._children;
-          d._children = null;
-        }
-      }
-      function update(source){
-        treeLayout(root);
-        // update links
-        const links = g.selectAll(".link").data(root.links(), d=>d.target.data.name);
-        links.join(
-          enter => enter.append("path").attr("class","link")
-            .attr("d",d3.linkVertical().x(d=>d.x).y(d=>d.y+15)),
-          update => update.attr("d",d3.linkVertical().x(d=>d.x).y(d=>d.y+15)),
-          exit => exit.remove()
-        );
-        // update nodes
-        g.selectAll(".node").data(root.descendants(), d=>d.data.name)
-          .attr("transform", d=>`translate(${d.x},${d.y})`);
-      }
+      return { nodes, edges };
     }
 
-    fetch("data/categories.json").then(res=>res.json()).then(data=>{
-      categories = data;
-      const buttonContainer = document.getElementById("buttons");
-      categories.forEach((cat, idx)=>{
-        const btn = document.createElement("button");
-        btn.className = "dtv-btn";
-        btn.setAttribute("data-category", cat.category);
-        btn.innerHTML = cat.category;
-        btn.onclick = ()=>drawTree(cat.category);
-        buttonContainer.appendChild(btn);
-      });
-      drawTree(categories[0].category);
-      window.addEventListener("resize", ()=>drawTree(currentCategory));
-    });
+    function TechTree() {
+      const { nodes, edges } = generateFlowNodesEdges(techData);
+      const [rfNodes, setRfNodes] = useState(nodes);
+      const [rfEdges] = useState(edges);
+
+      const onNodeClick = useCallback((event,node)=>{
+        const toggleNodes = (parentId)=>{
+          const childrenEdges = rfEdges.filter(e=>e.source===parentId);
+          childrenEdges.forEach(e=>{
+            const targetNode = rfNodes.find(n=>n.id===e.target);
+            if(targetNode){
+              targetNode.hidden = !targetNode.hidden;
+              toggleNodes(targetNode.id);
+            }
+          });
+        };
+        toggleNodes(node.id);
+        setRfNodes([...rfNodes]);
+      }, [rfNodes, rfEdges]);
+
+      return React.createElement(ReactFlowProvider, null,
+        React.createElement(ReactFlow,{
+          nodes: rfNodes,
+          edges: rfEdges,
+          onNodeClick,
+          fitView:true,
+          style:{width:"100%",height:"100%"},
+          nodesDraggable:true,
+          nodesConnectable:false,
+          zoomOnScroll:true,
+          panOnDrag:true
+        },
+          React.createElement(MiniMap),
+          React.createElement(Controls),
+          React.createElement(Background,{gap:16,color:"#ddd"})
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("tech-root")).render(React.createElement(TechTree));
 
     // === Education Timeline ===
     fetch("data/education.json")
@@ -239,26 +131,14 @@
         chart.svg.selectAll('.milestones-item text').each(function(d, i){
           const el = d3.select(this);
           el.text("");
-
-          el.append('tspan')
-            .attr('class','milestone-title')
-            .attr('x', 0)
-            .attr('dy', 0)
-            .text(eduMilestones[i].title);
-
-          el.append('tspan')
-            .attr('class','milestone-detail')
-            .attr('x', 0)
-            .attr('dy', '1.2em')
-            .text(eduMilestones[i].detail);
-
-          if (eduMilestones[i].icon) {
+          el.append('tspan').attr('class','milestone-title').attr('x',0).attr('dy',0).text(eduMilestones[i].title);
+          el.append('tspan').attr('class','milestone-detail').attr('x',0).attr('dy','1.2em').text(eduMilestones[i].detail);
+          if(eduMilestones[i].icon){
             chart.svg.append("image")
               .attr("xlink:href", eduMilestones[i].icon)
-              .attr("width", 24)
-              .attr("height", 24)
-              .attr("x", d.x ? d.x - 12 : 0)
-              .attr("y", d.y ? d.y - 40 : 0);
+              .attr("width", 24).attr("height", 24)
+              .attr("x", d.x ? d.x-12 : 0)
+              .attr("y", d.y ? d.y-40 : 0);
           }
         });
       });
