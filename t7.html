@@ -7,7 +7,6 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Sidebar buttons */
     .sidebar-btn {
       background: white;
       border-radius: 8px;
@@ -22,7 +21,7 @@
       background: #00a982;
       color: white;
     }
-    /* Tooltip style */
+
     .tooltip {
       position: absolute;
       left: 100%;
@@ -43,7 +42,6 @@
       opacity: 1;
     }
 
-    /* D3 tree link style */
     .link {
       fill: none;
       stroke: #ccc;
@@ -58,7 +56,6 @@
       fill: #333;
     }
 
-    /* Buttons inside Tech area */
     .dtv-btn {
       display: inline-flex; align-items: center; gap: 10px;
       padding: 10px 16px; border-radius: 9999px; border: 1px solid #e2e2e2;
@@ -90,16 +87,15 @@
       <span class="tooltip">Tech Skills</span>
     </div>
     <div class="group relative">
-      <button class="sidebar-btn" data-section="projects">
-        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" class="w-6 h-6">
+      <button class="sidebar-btn" data-section="education">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="w-6 h-6">
       </button>
-      <span class="tooltip">Projects</span>
+      <span class="tooltip">Education</span>
     </div>
   </div>
 
   <!-- Main Content -->
   <div id="content-area" class="flex-1 p-6">
-    <!-- Default content -->
     <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
       <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">About</h1>
       <p class="text-center">Welcome to my portfolio. Click on the sidebar to view tech skills.</p>
@@ -110,7 +106,7 @@
     let categories = [];
     let currentCategory = null;
 
-    // === Sidebar click handler ===
+    // sidebar switching
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -127,17 +123,19 @@
           `;
         }
 
-        if (section === 'projects') {
+        if (section === 'education') {
           document.getElementById('content-area').innerHTML = `
             <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
-              <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Projects</h1>
-              <p class="text-center">This is the projects section.</p>
+              <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Education</h1>
+              <ul class="mt-4 space-y-4">
+                <li><strong>2020–2022:</strong> Master’s in Data Science – XYZ University</li>
+                <li><strong>2016–2020:</strong> B.Tech in Computer Science – ABC College</li>
+              </ul>
             </div>
           `;
         }
 
         if (section === 'tech') {
-          // Insert the tech stack tree container
           document.getElementById('content-area').innerHTML = `
             <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
               <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
@@ -147,13 +145,12 @@
               </div>
             </div>
           `;
-          // build buttons and draw first category
           buildButtons();
         }
       });
     });
 
-    // === D3 Tree drawing ===
+    // D3 drawing
     function hexagon(r){ 
       let angle=Math.PI/3; 
       return d3.range(6).map(i=>[r*Math.cos(angle*i), r*Math.sin(angle*i)]).join("L")+"Z"; 
@@ -182,7 +179,8 @@
       const data = {name: category.category, children: category.technologies};
       const root = d3.hierarchy(data);
 
-      const treeLayout = d3.tree().size([width, height-100]);
+      // more vertical spacing to avoid overlap
+      const treeLayout = d3.tree().size([width, (height-100) + root.descendants().length*15]);
       treeLayout(root);
 
       const nodeRadius = width<640?20:30;
@@ -196,14 +194,10 @@
       const node = g.selectAll(".node").data(root.descendants()).enter()
         .append("g").attr("class","node").attr("transform", d=>`translate(${d.x},${d.y})`);
 
-      // Root hexagon
       node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
       node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
 
-      // Child circles + text
-      const nodeGroup = node.filter(d=>d.depth>0)
-        .append("g").attr("class","group");
-
+      const nodeGroup = node.filter(d=>d.depth>0).append("g").attr("class","group");
       nodeGroup.append("circle")
         .attr("r", nodeRadius)
         .attr("fill", "#ffffff")
@@ -231,12 +225,10 @@
       drawTree(categories[0].category);
     }
 
-    // Fetch categories.json once at page load
     fetch("data/categories.json").then(res=>res.json()).then(data=>{
       categories = data;
     });
 
-    // Redraw tree on window resize
     window.addEventListener('resize', () => {
       if (document.querySelector('[data-section="tech"]').classList.contains('active') && currentCategory) {
         drawTree(currentCategory);
