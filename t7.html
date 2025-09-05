@@ -1,147 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech Stack & Education • Abhishek Singh</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/react-flow-renderer/dist/style.css" />
-  <script src="https://unpkg.com/react-flow-renderer/dist/react-flow-renderer.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://unpkg.com/d3-milestones/build/d3-milestones.css">
-  <script src="https://unpkg.com/d3-milestones/build/d3-milestones.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Stack & Education • Abhishek Singh</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/react-flow-renderer/umd/react-flow-renderer.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/d3-milestones/build/d3-milestones.css">
+<script src="https://unpkg.com/d3-milestones/build/d3-milestones.min.js"></script>
 
-  <style>
-    body, html { margin:0; padding:0; font-family:sans-serif; background:#f5f5f5; }
-    .card { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); padding:20px; width:100%; max-width:1200px; margin:20px auto; }
-    #tech-root { width:100%; height:500px; }
-    .react-flow__node { padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; }
-    .react-flow__node:hover { border-color:#00897b; }
-    .timeline-wrapper { width:100%; overflow-x:auto; }
-    #education-timeline { width:100%; height:350px; max-width:1000px; margin:auto; }
-    .milestone-title { font-weight:bold; font-size:14px; }
-    .milestone-detail { font-size:12px; fill:#555; }
-  </style>
+<style>
+body, html { margin:0; padding:0; font-family:sans-serif; background:#f5f5f5; }
+.card { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08); padding:20px; width:100%; max-width:1200px; margin:20px auto; }
+#tech-root { width:100%; height:500px; }
+.timeline-wrapper { width:100%; overflow-x:auto; }
+#education-timeline { width:100%; height:350px; max-width:1000px; margin:auto; }
+.milestone-title { font-weight:bold; font-size:14px; }
+.milestone-detail { font-size:12px; fill:#555; }
+.react-flow__node { padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; }
+.react-flow__node:hover { border-color:#00897b; }
+</style>
 </head>
 <body class="flex flex-col items-center gap-10 p-6">
 
-  <!-- Tech Stack Card -->
-  <div class="card">
-    <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
-    <div id="tech-root"></div>
+<!-- Tech Stack Card -->
+<div class="card">
+  <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
+  <div id="tech-root"></div>
+</div>
+
+<!-- Education Card -->
+<div class="card">
+  <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Education</h2>
+  <div class="timeline-wrapper">
+    <div id="education-timeline"></div>
   </div>
+</div>
 
-  <!-- Education Card -->
-  <div class="card">
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-6">Education</h2>
-    <div class="timeline-wrapper">
-      <div id="education-timeline"></div>
-    </div>
-  </div>
+<script>
+const { useState, useCallback } = React;
+const { ReactFlowProvider, ReactFlow, MiniMap, Controls, Background } = window.ReactFlowRenderer;
 
-  <script type="text/javascript">
-    const { useState, useCallback } = React;
-    const { ReactFlowProvider, ReactFlow, MiniMap, Controls, Background } = window.ReactFlowRenderer;
+// Sample hierarchical tech stack data
+const techData = {
+  name: "Tech Stack",
+  children: [
+    { name: "Frontend", children: [{name:"HTML"},{name:"CSS"},{name:"JavaScript"},{name:"React"}] },
+    { name: "Backend", children: [{name:"Node.js"},{name:"Python"},{name:"Flask"}] },
+    { name: "Database", children: [{name:"PostgreSQL"},{name:"MongoDB"}] }
+  ]
+};
 
-    // Sample hierarchical tech stack data
-    const techData = {
-      name: "Tech Stack",
-      children: [
-        { name: "Frontend", children: [{name:"HTML"},{name:"CSS"},{name:"JavaScript"},{name:"React"}] },
-        { name: "Backend", children: [{name:"Node.js"},{name:"Python"},{name:"Flask"}] },
-        { name: "Database", children: [{name:"PostgreSQL"},{name:"MongoDB"}] }
-      ]
-    };
+let nodeIdCounter = 0;
+function generateFlowNodesEdges(node, parentId=null, x=0, y=0){
+  const nodeId = "node-" + nodeIdCounter++;
+  const nodes = [{ id: nodeId, data:{label: node.name}, position:{x,y} }];
+  const edges = [];
 
-    let nodeIdCounter = 0;
-    function generateFlowNodesEdges(node, parentId=null, x=0, y=0) {
-      const nodeId = "node-" + nodeIdCounter++;
-      const nodes = [{ id: nodeId, data: { label: node.name }, position: { x, y } }];
-      const edges = [];
+  if(node.children){
+    node.children.forEach((child,index)=>{
+      const childY = y + 120;
+      const childX = x + index*200 - ((node.children.length-1)*100);
+      const { nodes: childNodes, edges: childEdges } = generateFlowNodesEdges(child,nodeId,childX,childY);
+      nodes.push(...childNodes);
+      edges.push(...childEdges);
+      edges.push({ id: `${nodeId}-${childNodes[0].id}`, source: nodeId, target: childNodes[0].id });
+    });
+  }
+  return { nodes, edges };
+}
 
-      if(node.children){
-        node.children.forEach((child,index)=>{
-          const childY = y + 120;
-          const childX = x + index*200 - ((node.children.length-1)*100);
-          const { nodes: childNodes, edges: childEdges } = generateFlowNodesEdges(child, nodeId, childX, childY);
-          nodes.push(...childNodes);
-          edges.push(...childEdges);
-          edges.push({ id: `${nodeId}-${childNodes[0].id}`, source: nodeId, target: childNodes[0].id });
-        });
-      }
-      return { nodes, edges };
-    }
+function TechTree(){
+  const { nodes, edges } = generateFlowNodesEdges(techData);
+  const [rfNodes, setRfNodes] = useState(nodes);
+  const [rfEdges] = useState(edges);
 
-    function TechTree() {
-      const { nodes, edges } = generateFlowNodesEdges(techData);
-      const [rfNodes, setRfNodes] = useState(nodes);
-      const [rfEdges] = useState(edges);
-
-      const onNodeClick = useCallback((event,node)=>{
-        const toggleNodes = (parentId)=>{
-          const childrenEdges = rfEdges.filter(e=>e.source===parentId);
-          childrenEdges.forEach(e=>{
-            const targetNode = rfNodes.find(n=>n.id===e.target);
-            if(targetNode){
-              targetNode.hidden = !targetNode.hidden;
-              toggleNodes(targetNode.id);
-            }
-          });
-        };
-        toggleNodes(node.id);
-        setRfNodes([...rfNodes]);
-      }, [rfNodes, rfEdges]);
-
-      return React.createElement(ReactFlowProvider, null,
-        React.createElement(ReactFlow,{
-          nodes: rfNodes,
-          edges: rfEdges,
-          onNodeClick,
-          fitView:true,
-          style:{width:"100%",height:"100%"},
-          nodesDraggable:true,
-          nodesConnectable:false,
-          zoomOnScroll:true,
-          panOnDrag:true
-        },
-          React.createElement(MiniMap),
-          React.createElement(Controls),
-          React.createElement(Background,{gap:16,color:"#ddd"})
-        )
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById("tech-root")).render(React.createElement(TechTree));
-
-    // === Education Timeline ===
-    fetch("data/education.json")
-      .then(res => res.json())
-      .then(eduMilestones => {
-        const chart = milestones('#education-timeline')
-          .mapping({ timestamp: 'year', text: 'title' })
-          .parseTime('%Y')
-          .aggregateBy('year')
-          .orientation('horizontal')
-          .distribution('top-bottom')
-          .autoResize(true)
-          .optimize(true)
-          .render(eduMilestones);
-
-        chart.svg.selectAll('.milestones-item text').each(function(d, i){
-          const el = d3.select(this);
-          el.text("");
-          el.append('tspan').attr('class','milestone-title').attr('x',0).attr('dy',0).text(eduMilestones[i].title);
-          el.append('tspan').attr('class','milestone-detail').attr('x',0).attr('dy','1.2em').text(eduMilestones[i].detail);
-          if(eduMilestones[i].icon){
-            chart.svg.append("image")
-              .attr("xlink:href", eduMilestones[i].icon)
-              .attr("width", 24).attr("height", 24)
-              .attr("x", d.x ? d.x-12 : 0)
-              .attr("y", d.y ? d.y-40 : 0);
-          }
-        });
+  const onNodeClick = useCallback((event,node)=>{
+    const toggleNodes = (parentId)=>{
+      const childrenEdges = rfEdges.filter(e=>e.source===parentId);
+      childrenEdges.forEach(e=>{
+        const targetNode = rfNodes.find(n=>n.id===e.target);
+        if(targetNode){
+          targetNode.hidden = !targetNode.hidden;
+          toggleNodes(targetNode.id);
+        }
       });
-  </script>
+    };
+    toggleNodes(node.id);
+    setRfNodes([...rfNodes]);
+  }, [rfNodes, rfEdges]);
+
+  return React.createElement(ReactFlowProvider,null,
+    React.createElement(ReactFlow,{
+      nodes: rfNodes,
+      edges: rfEdges,
+      onNodeClick,
+      fitView:true,
+      style:{width:"100%",height:"100%"},
+      nodesDraggable:true,
+      nodesConnectable:false,
+      zoomOnScroll:true,
+      panOnDrag:true
+    },
+      React.createElement(MiniMap),
+      React.createElement(Controls),
+      React.createElement(Background,{gap:16,color:"#ddd"})
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("tech-root")).render(React.createElement(TechTree));
+
+// === Education Timeline ===
+fetch("data/education.json")
+  .then(res=>res.json())
+  .then(eduMilestones=>{
+    const chart = milestones('#education-timeline')
+      .mapping({ timestamp: 'year', text: 'title' })
+      .parseTime('%Y')
+      .aggregateBy('year')
+      .orientation('horizontal')
+      .distribution('top-bottom')
+      .autoResize(true)
+      .optimize(true)
+      .render(eduMilestones);
+
+    chart.svg.selectAll('.milestones-item text').each(function(d,i){
+      const el = d3.select(this);
+      el.text("");
+      el.append('tspan').attr('class','milestone-title').attr('x',0).attr('dy',0).text(eduMilestones[i].title);
+      el.append('tspan').attr('class','milestone-detail').attr('x',0).attr('dy','1.2em').text(eduMilestones[i].detail);
+      if(eduMilestones[i].icon){
+        chart.svg.append("image")
+          .attr("xlink:href", eduMilestones[i].icon)
+          .attr("width",24).attr("height",24)
+          .attr("x", d.x ? d.x-12 : 0)
+          .attr("y", d.y ? d.y-40 : 0);
+      }
+    });
+  });
+</script>
 </body>
 </html>
