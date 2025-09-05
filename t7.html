@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Demo</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Sidebar buttons */
+    .sidebar-btn {
+      background: white;
+      border-radius: 8px;
+      padding: 8px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .sidebar-btn:hover {
+      background: #e5f6f1;
+      transform: translateX(3px);
+    }
+    .sidebar-btn.active {
+      background: #00a982;
+      color: white;
+    }
+    /* Tooltip style */
+    .tooltip {
+      position: absolute;
+      left: 100%;
+      margin-left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: black;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .group:hover .tooltip {
+      opacity: 1;
+    }
+
+    /* D3 tree link style */
+    .link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 2px;
+    }
+    .hexagon {
+      fill: #eee;
+      stroke: #999;
+      stroke-width: 2px;
+    }
+    .node text {
+      fill: #333;
+    }
+
+    /* Buttons inside Tech area */
+    .dtv-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 16px; border-radius: 9999px; border: 1px solid #e2e2e2;
+      background: linear-gradient(180deg, #ffffff, #f3f3f3);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      color: #333; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      user-select: none;
+    }
+    .dtv-btn.active { border-color:#00897b; box-shadow:0 6px 16px rgba(0,137,123,0.18); background:linear-gradient(180deg,#fff,#ededed); }
+    .dtv-btn .num { width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;font-weight:700;font-size:13px;color:#fff;background:linear-gradient(145deg,#4db6ac,#00897b); }
+
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+
+  <!-- Sidebar -->
+  <div class="flex flex-col items-center p-4 space-y-4 bg-gray-100">
+    <div class="group relative">
+      <button class="sidebar-btn active" data-section="about">
+        <img src="https://cdn-icons-png.flaticon.com/512/64/64572.png" class="w-6 h-6">
+      </button>
+      <span class="tooltip">About</span>
+    </div>
+    <div class="group relative">
+      <button class="sidebar-btn" data-section="tech">
+        <img src="https://cdn-icons-png.flaticon.com/512/906/906349.png" class="w-6 h-6">
+      </button>
+      <span class="tooltip">Tech Skills</span>
+    </div>
+    <div class="group relative">
+      <button class="sidebar-btn" data-section="projects">
+        <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" class="w-6 h-6">
+      </button>
+      <span class="tooltip">Projects</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="content-area" class="flex-1 p-6">
+    <!-- Default content -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
+      <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">About</h1>
+      <p class="text-center">Welcome to my portfolio. Click on the sidebar to view tech skills.</p>
+    </div>
+  </div>
+
+  <script>
+    let categories = [];
+    let currentCategory = null;
+
+    // === Sidebar click handler ===
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const section = btn.getAttribute('data-section');
+
+        if (section === 'about') {
+          document.getElementById('content-area').innerHTML = `
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
+              <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">About</h1>
+              <p class="text-center">Welcome to my portfolio. Click on the sidebar to view tech skills.</p>
+            </div>
+          `;
+        }
+
+        if (section === 'projects') {
+          document.getElementById('content-area').innerHTML = `
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
+              <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Projects</h1>
+              <p class="text-center">This is the projects section.</p>
+            </div>
+          `;
+        }
+
+        if (section === 'tech') {
+          // Insert the tech stack tree container
+          document.getElementById('content-area').innerHTML = `
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 w-full max-w-6xl mx-auto">
+              <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">Familiar Technology Stacks</h1>
+              <div id="buttons" class="flex flex-wrap justify-center gap-3 mb-6"></div>
+              <div class="relative w-full pb-[70%]">
+                <svg class="absolute inset-0 w-full h-full"></svg>
+              </div>
+            </div>
+          `;
+          // build buttons and draw first category
+          buildButtons();
+        }
+      });
+    });
+
+    // === D3 Tree drawing ===
+    function hexagon(r){ 
+      let angle=Math.PI/3; 
+      return d3.range(6).map(i=>[r*Math.cos(angle*i), r*Math.sin(angle*i)]).join("L")+"Z"; 
+    }
+
+    function setActiveButton(categoryName){ 
+      document.querySelectorAll('.dtv-btn').forEach(btn=>{
+        btn.classList.toggle('active', btn.getAttribute('data-category')===categoryName);
+      }); 
+    }
+
+    function drawTree(categoryName){
+      currentCategory = categoryName;
+      setActiveButton(categoryName);
+
+      const container = document.querySelector('.relative');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      const svg = d3.select("svg");
+      svg.selectAll("*").remove();
+
+      const g = svg.append("g").attr("transform", `translate(0,50)`);
+
+      const category = categories.find(c=>c.category===categoryName);
+      const data = {name: category.category, children: category.technologies};
+      const root = d3.hierarchy(data);
+
+      const treeLayout = d3.tree().size([width, height-100]);
+      treeLayout(root);
+
+      const nodeRadius = width<640?20:30;
+      const labelFont = width<640?"10px":"12px";
+      const labelOffset = width<640?nodeRadius+12:nodeRadius+15;
+
+      g.selectAll(".link").data(root.links()).enter().append("path")
+        .attr("class","link")
+        .attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y+15));
+
+      const node = g.selectAll(".node").data(root.descendants()).enter()
+        .append("g").attr("class","node").attr("transform", d=>`translate(${d.x},${d.y})`);
+
+      // Root hexagon
+      node.filter(d=>d.depth===0).append("path").attr("d",hexagon(50)).attr("class","hexagon");
+      node.filter(d=>d.depth===0).append("text").attr("text-anchor","middle").attr("dy",5).text(d=>d.data.name);
+
+      // Child circles + text
+      const nodeGroup = node.filter(d=>d.depth>0)
+        .append("g").attr("class","group");
+
+      nodeGroup.append("circle")
+        .attr("r", nodeRadius)
+        .attr("fill", "#ffffff")
+        .attr("stroke", "#ccc")
+        .attr("stroke-width", 2);
+
+      nodeGroup.append("text")
+        .attr("dy",labelOffset)
+        .attr("text-anchor","middle")
+        .style("font-size",labelFont)
+        .text(d=>d.data.name);
+    }
+
+    function buildButtons() {
+      const buttonContainer = document.getElementById("buttons");
+      buttonContainer.innerHTML = '';
+      categories.forEach((cat,idx)=>{
+        const btn = document.createElement("button");
+        btn.className="dtv-btn";
+        btn.setAttribute("data-category",cat.category);
+        btn.innerHTML=`<span class="num">${idx+1}</span>${cat.category}`;
+        btn.onclick=()=>drawTree(cat.category);
+        buttonContainer.appendChild(btn);
+      });
+      drawTree(categories[0].category);
+    }
+
+    // Fetch categories.json once at page load
+    fetch("data/categories.json").then(res=>res.json()).then(data=>{
+      categories = data;
+    });
+
+    // Redraw tree on window resize
+    window.addEventListener('resize', () => {
+      if (document.querySelector('[data-section="tech"]').classList.contains('active') && currentCategory) {
+        drawTree(currentCategory);
+      }
+    });
+  </script>
+</body>
+</html>
