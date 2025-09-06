@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abhishek Singh - Portfolio Tree</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  body { margin:0; font-family:sans-serif; background:#f9f9f9; color:#333; }
+  header { text-align:center; padding:1rem; background:rgba(255,255,255,0.9); border-bottom:1px dashed #ccc; position:sticky; top:0; z-index:10; backdrop-filter:blur(4px);}
+  h1 { margin:0; }
+  #section-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin:1rem 0; }
+  .dtv-btn { padding:0.5rem 1rem; border-radius:999px; border:1px solid #ccc; cursor:pointer; background:#fff; transition:0.15s; }
+  .dtv-btn:hover { background:#ececec; }
+  .dtv-btn.active { border-color:#0077ff; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+  #section-content { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; padding:1rem; }
+  .card { flex:1 1 200px; border:1px solid #ddd; border-radius:12px; padding:1rem; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.05); text-align:center; }
+  .card img { width:40px; height:40px; object-fit:cover; margin-top:0.5rem; }
+  .card a { display:block; margin-top:0.5rem; color:#0077ff; text-decoration:none; }
+  main { display:flex; flex-direction:column; align-items:center; }
+  #tree-container { width:100%; height:400px; margin:1rem 0; }
+  svg { width:100%; height:100%; }
+  .link { fill:none; stroke:#bbb; stroke-width:1.5px; stroke-dasharray:3 3; }
+  .node circle { fill:#fff; stroke:#333; stroke-width:1.5px; }
+  .node--collapsed circle { stroke-dasharray:4 2; }
+  .node--expanded circle { stroke-dasharray:none; }
+  .node text { font-size:13px; user-select:none; text-anchor:middle; }
+  .root-label { font-size:14px; font-weight:bold; fill:#0077ff; }
+</style>
+</head>
+<body>
+
+<header><h1>Portfolio Tree</h1></header>
+
+<main>
+  <div id="section-buttons"></div>
+  <div id="tree-container"><svg id="tree"></svg></div>
+  <div id="section-content"></div>
+</main>
+
+<script>
+const data = {
+  name: "Abhishek Singh",
+  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
+  blurb: "Welcome to my portfolio! Explore my skills, education, experience, and digital credentials.",
+  children: [
+    { name: "Skills", blurb: "My technical skills.", icon: "icons/skills2.svg", children: [
+      { name: "Programming", icon: "icons/programming.svg", children: [
+        { name: "Python", icon: "icons/python.svg", link: "https://www.python.org/" },
+        { name: "R", icon: "icons/r.svg", link: "https://www.r-project.org/" },
+        { name: "JavaScript", icon: "icons/javascript.svg", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+        { name: "HTML", icon: "icons/html.svg", link: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+        { name: "CSS", icon: "icons/css.svg", link: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+        { name: "PHP", icon: "icons/php.svg", link: "https://www.php.net/" }
+      ]},
+      { name: "Visualization", icon: "icons/visualization.svg", children: [
+        { name: "Looker", icon: "icons/looker.svg", link: "https://looker.com/" },
+        { name: "PowerBI", icon: "icons/powerbi.svg", link: "https://powerbi.microsoft.com/" }
+      ]},
+      { name: "Database", icon: "icons/database.svg", children: [
+        { name: "BigQuery", icon: "icons/bigquery.svg", link: "https://cloud.google.com/bigquery" },
+        { name: "Athena", icon: "icons/athena.svg", link: "https://aws.amazon.com/athena/" },
+        { name: "MySQL", icon: "icons/mysql.svg", link: "https://www.mysql.com/" },
+        { name: "PostgreSQL", icon: "icons/postgres.svg", link: "https://www.postgresql.org/" },
+        { name: "Amazon RDS", icon: "icons/rds.svg", link: "https://aws.amazon.com/rds/" },
+        { name: "MongoDB", icon: "icons/mongodb.svg", link: "https://www.mongodb.com/" }
+      ]}
+    ]},
+    { name: "Education", blurb: "My academic background.", icon: "icons/education.svg", children: [
+      { year: 2011, name: "B.Sc - University of Delhi", detail: "Life Sciences – First Division", icon: "icons/bachelor.svg" },
+      { year: 2015, name: "M.Sc - Central University of Punjab", detail: "Human Genetics – First Class Distinction", icon: "icons/college.png" },
+      { year: 2020, name: "Masters - University of Liverpool", detail: "Data Science & AI – First Class Distinction", icon: "icons/uliv.svg" }
+    ]},
+    { name: "Experience", blurb: "My professional experience over the years.", icon: "icons/experience.svg", children: [
+      { name: "Data Scientist - ONS", detail: "Office for National Statistics | Liverpool | UK 01/2023- Current", icon: "icons/ons.svg" },
+      { name: "Data Scientist - BioGrad Diagnostics", detail: "Liverpool | UK 11/2021-01/2023. SQL, ETL, Data Visualisation, Cloud (AWS), Reporting.", icon: "icons/experience.svg" },
+      { name: "Customer Service Advisor - Barclays", detail: "Liverpool | UK 03/2021-09/2021. Customer support, coordination, and service improvement.", icon: "icons/barclays.svg" },
+      { name: "Testing Support - University of Liverpool", detail: "Liverpool | UK 11/2020-04/2021. Part-time Test & Trace project.", icon: "icons/uliv1.svg" }
+    ]},
+    { name: "Digital Credentials", blurb: "Certificates and Badges.", icon: "icons/certificates.svg", children: [
+      { name: "Certificates", icon: "icons/cert.svg", children: [
+        { name: "Applied Data Science Capstone", link: "https://www.coursera.org/account/accomplishments/verify/...", icon: "icons/certificates.svg" }
+      ]},
+      { name: "Badges", icon: "icons/badges.svg", children: [
+        { name: "Python 101", icon: "icons/badges.svg", link: "https://www.credly.com/badges/8f794539-e7d1-408e-8aaa-910f8ab1668d" }
+      ]}
+    ]}
+  ]
+};
+
+// --- Section Buttons ---
+const sectionNames = ["Skills","Education","Experience","Digital Credentials"];
+const buttonsContainer = document.getElementById("section-buttons");
+const contentContainer = document.getElementById("section-content");
+
+sectionNames.forEach(name=>{
+  const btn = document.createElement("button");
+  btn.textContent = name;
+  btn.className = "dtv-btn";
+  btn.onclick = ()=>renderSection(name);
+  buttonsContainer.appendChild(btn);
+});
+
+function setActiveButton(name){
+  document.querySelectorAll('.dtv-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.textContent===name);
+  });
+}
+
+// --- Render Section ---
+function renderSection(sectionName){
+  setActiveButton(sectionName);
+  contentContainer.innerHTML = "";
+  const sectionNode = data.children.find(d=>d.name===sectionName);
+  if(!sectionNode) return;
+
+  const items = sectionNode.children || [];
+  items.forEach(item=>{
+    const card = document.createElement("div");
+    card.className="card";
+    const title = document.createElement("h3");
+    title.textContent = item.name || item.year;
+    card.appendChild(title);
+    if(item.detail || item.blurb){
+      const desc = document.createElement("p");
+      desc.textContent = item.detail || item.blurb;
+      card.appendChild(desc);
+    }
+    if(item.icon){
+      const img = document.createElement("img");
+      img.src = item.icon;
+      card.appendChild(img);
+    }
+    if(item.link){
+      const a = document.createElement("a");
+      a.href=item.link;
+      a.target="_blank";
+      a.textContent="Learn more";
+      card.appendChild(a);
+    }
+    contentContainer.appendChild(card);
+  });
+}
+
+// Initial section
+renderSection("Skills");
+
+// --- D3 Tree ---
+const svg = d3.select("#tree"), g = svg.append("g").attr("transform","translate(50,50)");
+let width = svg.node().clientWidth, height = svg.node().clientHeight;
+let i=0, duration=400;
+const treeLayout = d3.tree().size([width-100,height-100]);
+let root = d3.hierarchy(data, d=>d.children);
+root.x0 = width/2; root.y0 = 0;
+root.children.forEach(collapse);
+update(root);
+
+function collapse(d){ if(d.children){ d._children=d.children; d._children.forEach(collapse); d.children=null; } }
+
+function update(source){
+  treeLayout(root);
+  const nodes=root.descendants(), links=root.links();
+  nodes.forEach(d=>d.y=d.depth*120);
+  let node=g.selectAll("g.node").data(nodes,d=>d.id||(d.id=++i));
+
+  const nodeEnter=node.enter().append("g")
+    .attr("class",d=>d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"))
+    .attr("transform",d=>`translate(${source.x0},${source.y0})`)
+    .on("click",(_,d)=>{ if(d.children){ d._children=d.children; d.children=null;} else { d.children=d._children; d._children=null; } update(d); if(sectionNames.includes(d.data.name)) renderSection(d.data.name); });
+
+  nodeEnter.append("circle").attr("r",1e-6);
+  nodeEnter.filter(d=>d.data.icon).append("image")
+    .attr("xlink:href",d=>d.data.icon)
+    .attr("x",-12).attr("y",-12).attr("width",24).attr("height",24);
+  nodeEnter.filter(d=>d.depth===0).append("image")
+    .attr("xlink:href",d=>d.data.photo)
+    .attr("x",-25).attr("y",-25).attr("width",50).attr("height",50)
+    .style("clip-path","circle(25px at center)");
+  nodeEnter.append("text")
+    .attr("dy",d=>d.depth===0?40:-24)
+    .text(d=>d.data.name || d.data.year)
+    .style("fill-opacity",1e-6);
+
+  const nodeUpdate=nodeEnter.merge(node);
+  nodeUpdate.transition().duration(duration).attr("transform",d=>`translate(${d.x},${d.y})`);
+  nodeUpdate.select("circle").attr("r",18);
+  nodeUpdate.select("text").style("fill-opacity",1);
+  nodeUpdate.attr("class", d=>d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"));
+
+  const nodeExit=node.exit().transition().duration(duration).attr("transform",d=>`translate(${source.x},${source.y})`).remove();
+  nodeExit.select("circle").attr("r",1e-6); nodeExit.select("text").style("fill-opacity",1e-6);
+
+  const link=g.selectAll("path.link").data(links,d=>d.target.id);
+  const linkEnter=link.enter().insert("path","g").attr("class","link").attr("d",d=>{ let o={x:source.x0,y:source.y0}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o}); });
+  link.merge(linkEnter).transition().duration(duration).attr("d",d3.linkVertical().x(d=>d.x).y(d=>d.y));
+  link.exit().transition().duration(duration).attr("d",d=>{ let o={x:source.x,y:source.y}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o});}).remove();
+  nodes.forEach(d=>{ d.x0=d.x; d.y0=d.y; });
+}
+
+function resize(){ width=svg.node().clientWidth; height=svg.node().clientHeight; treeLayout.size([width-100,height-100]); update(root); }
+window.addEventListener("resize",resize);
+
+</script>
+</body>
+</html>
