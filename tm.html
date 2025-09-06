@@ -35,305 +35,222 @@
     backdrop-filter: blur(4px);
     transition: transform 0.3s ease-in-out;
   }
-  #detail-panel.hidden {
-    transform: translateX(100%);
-  }
-  .panel-title {
-    font-size: 18px; font-weight: bold; margin-bottom: 10px;
-  }
-  .panel-content {
-    font-size: 14px; line-height: 1.5;
-  }
-  .link {
-    fill: none; stroke: #bbb; stroke-width: 1.5px; stroke-dasharray: 3 3;
-  }
-  .node circle {
-    fill: #fff; stroke: #333; stroke-width: 1.5px;
-  }
-  .node--collapsed circle {
-    stroke-dasharray: 4 2;
-  }
-  .node--expanded circle {
-    stroke-dasharray: none;
-  }
-  .node text {
-    font-size: 13px; user-select: none;
-  }
-  .root-label {
-    font-size: 14px; font-weight: bold; fill: #0077ff;
-  }
+  #detail-panel.hidden { transform: translateX(100%); }
+  .panel-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+  .panel-content { font-size: 14px; line-height: 1.5; }
+  .link { fill: none; stroke: #bbb; stroke-width: 1.5px; stroke-dasharray: 3 3; }
+  .node circle { fill: #fff; stroke: #333; stroke-width: 1.5px; }
+  .node--collapsed circle { stroke-dasharray: 4 2; }
+  .node--expanded circle { stroke-dasharray: none; }
+  .node text { font-size: 13px; user-select: none; }
+  .root-label { font-size: 14px; font-weight: bold; fill: #0077ff; }
+  .node image { pointer-events: none; }
   @media (max-width: 768px) {
     main { flex-direction: column; }
-    #detail-panel {
-      max-width: none; border-left: none; border-top: 1px solid #ddd;
-      transform: translateY(100%);
-    }
-    #detail-panel.hidden {
-      transform: translateY(100%);
-    }
-    #detail-panel.visible {
-      transform: translateY(0);
-    }
+    #detail-panel { max-width: none; border-left: none; border-top: 1px solid #ddd; transform: translateY(100%); }
+    #detail-panel.hidden { transform: translateY(100%); }
+    #detail-panel.visible { transform: translateY(0); }
   }
 </style>
 </head>
 <body>
-  <header>
-    <h1>Portfolio Tree</h1>
-  </header>
-
-  <main>
-    <div id="tree-container">
-      <svg id="tree"></svg>
-    </div>
-    <aside id="detail-panel" class="hidden">
-      <div class="panel-title">Select a section</div>
-      <div class="panel-content">Click on a node to see more details here.</div>
-    </aside>
-  </main>
+<header><h1>Portfolio Tree</h1></header>
+<main>
+  <div id="tree-container"><svg id="tree"></svg></div>
+  <aside id="detail-panel" class="hidden">
+    <div class="panel-title">Select a section</div>
+    <div class="panel-content">Click on a node to see more details here.</div>
+  </aside>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
-// Full Profile Data
 const data = {
   name: "Abhishek Singh",
   photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
-  blurb: "Welcome to my portfolio! Explore my projects, skills, and journey.",
+  blurb: "Welcome to my portfolio! Explore my skills, education, and digital credentials.",
+  icon: "icons/profile.png",
   children: [
     {
-      name: "Digital Credentials",
-      icon: "icons/certificates.svg",
-      blurb: "Certificates and badges earned.",
-      children: [
-        {
-          name: "Certificates",
-          icon: "icons/certificate.svg",
-          blurb: "Professional certificates obtained.",
-          children: [
-            {
-              name: "Applied Data Science with Python",
-              icon: "icons/Applied_Data_Science_with_Python.png",
-              blurb: "Coursera - IBM"
-            },
-            {
-              name: "Deep Learning Essentials",
-              icon: "icons/Deep_Learning_Essentials.png",
-              blurb: "Coursera - IBM"
-            }
-            // Add more certificates as needed
-          ]
-        },
-        {
-          name: "Badges",
-          icon: "icons/badge.svg",
-          blurb: "Digital badges from platforms like Credly and Datacamp.",
-          children: [
-            {
-              name: "Python for Data Sci & AI",
-              icon: "icons/Python_for_Data_Sci_and_AI_Foundational.png",
-              blurb: "Credly Badge",
-              link: "https://www.credly.com/badges/2d6db8e0-8851-4c86-aa3a-225777dcb2cc"
-            },
-            {
-              name: "Data Visualization with R",
-              icon: "icons/Data_Visualization_with_R.png",
-              blurb: "Credly Badge",
-              link: "https://www.credly.com/badges/17a17f5a-d2f9-47b2-8c5c-f6ec77357967"
-            }
-            // Add remaining badges here
-          ]
-        }
-      ]
-    },
-    {
       name: "Skills",
-      icon: "icons/skills.svg",
-      blurb: "Technical skills.",
+      blurb: "My technical skills.",
+      icon: "icons/skills.png",
       children: [
         {
           name: "Programming",
-          icon: "icons/programming.svg",
+          icon: "icons/programming.png",
           children: [
-            { name: "Python", icon: "icons/python.svg", blurb: "https://www.python.org/" },
-            { name: "R", icon: "icons/r.svg", blurb: "https://www.r-project.org/" },
-            { name: "JavaScript", icon: "icons/javascript.svg", blurb: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" }
+            { name: "Python", icon: "python.svg", link: "https://www.python.org/" },
+            { name: "R", icon: "r.svg", link: "https://www.r-project.org/" },
+            { name: "JavaScript", icon: "javascript.svg", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+            { name: "HTML", icon: "html.svg", link: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+            { name: "CSS", icon: "css.svg", link: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+            { name: "PHP", icon: "php.svg", link: "https://www.php.net/" }
           ]
         },
         {
           name: "Visualization",
-          icon: "icons/visualization.svg",
+          icon: "icons/visualization.png",
           children: [
-            { name: "Looker", icon: "icons/looker.svg", blurb: "https://looker.com/" },
-            { name: "PowerBI", icon: "icons/powerbi.svg", blurb: "https://powerbi.microsoft.com/" }
+            { name: "Looker", icon: "looker.svg", link: "https://looker.com/" },
+            { name: "PowerBI", icon: "powerbi.svg", link: "https://powerbi.microsoft.com/" }
+          ]
+        },
+        {
+          name: "Database",
+          icon: "icons/database.png",
+          children: [
+            { name: "BigQuery", icon: "bigquery.svg", link: "https://cloud.google.com/bigquery" },
+            { name: "Athena", icon: "athena.svg", link: "https://aws.amazon.com/athena/" },
+            { name: "MySQL", icon: "mysql.svg", link: "https://www.mysql.com/" },
+            { name: "PostgreSQL", icon: "postgres.svg", link: "https://www.postgresql.org/" },
+            { name: "Amazon RDS", icon: "rds.svg", link: "https://aws.amazon.com/rds/" },
+            { name: "MongoDB", icon: "mongodb.svg", link: "https://www.mongodb.com/" }
+          ]
+        },
+        {
+          name: "Data Tools",
+          icon: "icons/data-tools.png",
+          children: [
+            { name: "Scikit-learn", icon: "scikit-learn.svg", link: "https://scikit-learn.org/" },
+            { name: "Pandas", icon: "pandas.svg", link: "https://pandas.pydata.org/" },
+            { name: "NumPy", icon: "numpy.svg", link: "https://numpy.org/" },
+            { name: "Jupyter", icon: "jupyter.svg", link: "https://jupyter.org/" },
+            { name: "PySpark", icon: "pyspark.svg", link: "https://pypi.org/project/pyspark/" },
+            { name: "Spark", icon: "spark.svg", link: "https://spark.apache.org/" },
+            { name: "Airflow", icon: "airflow.svg", link: "https://airflow.apache.org/" }
+          ]
+        },
+        {
+          name: "DevOps",
+          icon: "icons/devops.png",
+          children: [
+            { name: "Docker", icon: "docker.svg", link: "https://www.docker.com/" },
+            { name: "Git", icon: "git.svg", link: "https://git-scm.com/" },
+            { name: "Linux/Unix", icon: "linux.svg", link: "https://www.linux.org/" },
+            { name: "Slack", icon: "slack.svg", link: "https://slack.com/" },
+            { name: "Cloud tech", icon: "vpc.svg", children: [
+                { name: "GCP", icon: "gcp.svg", link: "https://cloud.google.com" },
+                { name: "AWS", icon: "aws.svg", link: "https://aws.amazon.com/" },
+                { name: "VPC", icon: "vpc.svg", link: "https://aws.amazon.com/vpc/" }
+              ]
+            },
+            { name: "Security", icon: "security.svg", link: "https://aws.amazon.com/security/" },
+            { name: "Vim/Nano", icon: "editor.svg", link: "https://www.vim.org/" }
           ]
         }
       ]
     },
     {
       name: "Education",
-      icon: "icons/education.svg",
-      blurb: "Academic background.",
+      blurb: "My academic background.",
+      icon: "icons/education.png",
       children: [
-        { name: "B.Sc - University of Delhi", icon: "icons/bachelor.svg", blurb: "Life Sciences – First Division (2011)" },
-        { name: "M.Sc - Central University of Punjab", icon: "icons/college.png", blurb: "Human Genetics – First Class Distinction (2015)" },
-        { name: "Masters - University of Liverpool", icon: "icons/graduation.png", blurb: "Data Science & AI – First Class Distinction (2020)" }
+        { year: 2011, name: "B.Sc - University of Delhi", detail: "Life Sciences – First Division", icon: "bachelor.svg" },
+        { year: 2015, name: "M.Sc - Central University of Punjab", detail: "Human Genetics – First Class Distinction", icon: "icons/college.png" },
+        { year: 2020, name: "Masters - University of Liverpool", detail: "Data Science & AI – First Class Distinction", icon: "icons/graduation.png" }
+      ]
+    },
+    {
+      name: "Digital Credentials",
+      blurb: "Certificates and Badges.",
+      icon: "icons/certificates.png",
+      children: [
+        {
+          name: "Certificates",
+          children: [
+            { name: "Applied Data Science Capstone", link: "https://www.coursera.org/account/accomplishments/verify/...", icon: "static/images/Applied_Data_Science_Capstone.png" }
+          ]
+        },
+        {
+          name: "Badges",
+          children: [
+            { name: "Python 101", icon: "static/images/Python_101_Data_Science.png", link: "https://www.credly.com/badges/8f794539-e7d1-408e-8aaa-910f8ab1668d" }
+            // Add all other badges similarly here...
+          ]
+        }
       ]
     },
     {
       name: "Contact",
-      icon: "icons/contact.svg",
-      blurb: "LinkedIn & GitHub links.",
+      blurb: "Connect with me.",
+      icon: "icons/contact.png",
       children: [
-        { name: "LinkedIn", icon: "icons/linkedin.svg", blurb: "https://www.linkedin.com/in/abhishek-singh-214a0a146/" },
-        { name: "GitHub", icon: "icons/github.svg", blurb: "https://github.com/AbsTheAnalyst" }
+        { name: "LinkedIn", link: "https://www.linkedin.com/in/abhishek-singh-214a0a146/", icon: "icons/linkedin.svg" },
+        { name: "GitHub", link: "https://github.com/AbsTheAnalyst", icon: "icons/github.svg" }
       ]
     }
   ]
 };
 
-// D3 Tree Setup
-const svg = d3.select("#tree"),
-      g = svg.append("g").attr("transform", "translate(40,40)");
-
-let width = svg.node().clientWidth,
-    height = svg.node().clientHeight;
-
-let i = 0;
-const duration = 400;
-
+// --- D3 Tree Rendering ---
+const svg = d3.select("#tree"), g = svg.append("g").attr("transform", "translate(40,40)");
+let width = svg.node().clientWidth, height = svg.node().clientHeight;
+let i = 0, duration = 400;
 const treeLayout = d3.tree().size([width - 100, height - 120]);
 let root = d3.hierarchy(data, d => d.children);
-root.x0 = width / 2;
-root.y0 = 0;
-
+root.x0 = width / 2; root.y0 = 0;
 root.children.forEach(collapse);
 update(root);
 
-function collapse(d) {
-  if (d.children) {
-    d._children = d.children;
-    d._children.forEach(collapse);
-    d.children = null;
-  }
-}
+function collapse(d) { if(d.children){ d._children = d.children; d._children.forEach(collapse); d.children = null; } }
 
-// Detail panel
 function showDetails(d) {
   const panel = document.getElementById("detail-panel");
-  panel.querySelector(".panel-title").textContent = d.data.name;
-  panel.querySelector(".panel-content").textContent = d.data.blurb || "No details available.";
-  panel.classList.remove("hidden");
-  panel.classList.add("visible");
+  panel.querySelector(".panel-title").textContent = d.data.name || d.data.year;
+  panel.querySelector(".panel-content").textContent = d.data.blurb || d.data.detail || "No details available.";
+  panel.classList.remove("hidden"); panel.classList.add("visible");
 }
 
 function update(source) {
   treeLayout(root);
   const nodes = root.descendants();
   const links = root.links();
-
   nodes.forEach(d => d.y = d.depth * 120);
 
-  // --- Nodes ---
   let node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++i));
-
   const nodeEnter = node.enter().append("g")
-    .attr("class", d => {
-      if (d.depth === 0) return "node root-node";
-      if (d._children) return "node node--collapsed";
-      return "node node--expanded";
-    })
+    .attr("class", d => d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"))
     .attr("transform", d => `translate(${source.x0},${source.y0})`)
-    .on("click", (_, d) => {
-      if (d.children) {
-        d._children = d.children;
-        d.children = null;
-      } else {
-        d.children = d._children;
-        d._children = null;
-      }
-      update(d);
-      showDetails(d);
-    });
+    .on("click", (_,d)=>{ if(d.children){ d._children=d.children; d.children=null;} else { d.children=d._children; d._children=null;} update(d); showDetails(d); });
 
-  // Node icon / photo / default circle
-  nodeEnter.each(function(d) {
-    const gNode = d3.select(this);
-    if (d.data.icon) {
-      gNode.append("image")
-        .attr("xlink:href", d.data.icon)
-        .attr("x", -18)
-        .attr("y", -18)
-        .attr("width", 36)
-        .attr("height", 36)
-        .style("clip-path", "circle(18px at center)");
-    } else if (d.depth === 0) {
-      gNode.append("image")
-        .attr("xlink:href", d.data.photo)
-        .attr("x", -25)
-        .attr("y", -25)
-        .attr("width", 50)
-        .attr("height", 50)
-        .style("clip-path", "circle(25px at center)");
-    } else {
-      gNode.append("circle").attr("r", 18);
-    }
-  });
+  nodeEnter.filter(d=>d.depth!==0).append("circle").attr("r",1e-6);
 
-  // Node labels
+  nodeEnter.filter(d=>d.data.icon).append("image")
+    .attr("xlink:href", d=>d.data.icon)
+    .attr("x",-12).attr("y",-12)
+    .attr("width",24).attr("height",24);
+
+  nodeEnter.filter(d=>d.depth===0).append("image")
+    .attr("xlink:href", d=>d.data.photo)
+    .attr("x",-25).attr("y",-25)
+    .attr("width",50).attr("height",50)
+    .style("clip-path","circle(25px at center)");
+
   nodeEnter.append("text")
-    .attr("dy", d => d.depth === 0 ? 40 : -24)
-    .attr("text-anchor", "middle")
-    .attr("class", d => d.depth === 0 ? "root-label" : "")
-    .text(d => d.data.name)
-    .style("fill-opacity", 1e-6);
+    .attr("dy", d=>d.depth===0?40:-24)
+    .attr("text-anchor","middle")
+    .attr("class", d=>d.depth===0?"root-label":"")
+    .text(d=>d.data.name || d.data.year)
+    .style("fill-opacity",1e-6);
 
   const nodeUpdate = nodeEnter.merge(node);
-  nodeUpdate.transition().duration(duration)
-    .attr("transform", d => `translate(${d.x},${d.y})`);
-  nodeUpdate.select("text").style("fill-opacity", 1);
+  nodeUpdate.transition().duration(duration).attr("transform", d=>`translate(${d.x},${d.y})`);
+  nodeUpdate.select("circle").attr("r",18);
+  nodeUpdate.select("text").style("fill-opacity",1);
+  nodeUpdate.attr("class", d => d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"));
 
-  nodeUpdate.attr("class", d => {
-    if (d.depth === 0) return "node root-node";
-    if (d._children) return "node node--collapsed";
-    return "node node--expanded";
-  });
+  const nodeExit = node.exit().transition().duration(duration).attr("transform", d=>`translate(${source.x},${source.y})`).remove();
+  nodeExit.select("circle").attr("r",1e-6); nodeExit.select("text").style("fill-opacity",1e-6);
 
-  const nodeExit = node.exit().transition()
-    .duration(duration)
-    .attr("transform", d => `translate(${source.x},${source.y})`)
-    .remove();
-
-  // --- Links ---
-  let link = g.selectAll("path.link").data(links, d => d.target.id);
-  const linkEnter = link.enter().insert("path", "g")
-    .attr("class", "link")
-    .attr("d", d => {
-      let o = {x: source.x0, y: source.y0};
-      return d3.linkVertical().x(d => d.x).y(d => d.y)({source: o, target: o});
-    });
-
-  link.merge(linkEnter).transition()
-    .duration(duration)
-    .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y));
-
-  link.exit().transition()
-    .duration(duration)
-    .attr("d", d => {
-      let o = {x: source.x, y: source.y};
-      return d3.linkVertical().x(d => d.x).y(d => d.y)({source: o, target: o});
-    })
-    .remove();
-
-  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+  let link = g.selectAll("path.link").data(links, d=>d.target.id);
+  const linkEnter = link.enter().insert("path","g").attr("class","link").attr("d", d=>{ let o={x:source.x0,y:source.y0}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o});});
+  link.merge(linkEnter).transition().duration(duration).attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y));
+  link.exit().transition().duration(duration).attr("d", d=>{ let o={x:source.x,y:source.y}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o});}).remove();
+  nodes.forEach(d=>{d.x0=d.x; d.y0=d.y;});
 }
 
-// Resize
-function resize() {
-  width = svg.node().clientWidth;
-  height = svg.node().clientHeight;
-  treeLayout.size([width - 100, height - 120]);
-  update(root);
-}
+function resize(){ width=svg.node().clientWidth; height=svg.node().clientHeight; treeLayout.size([width-100,height-120]); update(root);}
 window.addEventListener("resize", resize);
 </script>
 </body>
