@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Abhishek Singh - Portfolio Tree</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%; font-family: sans-serif;
+  }
+  body {
+    display: flex; flex-direction: column;
+    background-color: #f9f9f9;
+    background-image: radial-gradient(#ddd 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  header {
+    text-align: center; padding: 1rem;
+    border-bottom: 1px dashed #ccc; background: rgba(255,255,255,0.9);
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  #tree-container {
+    flex: 1; width: 100%; height: 100%; overflow: hidden;
+  }
+  svg {
+    width: 100%; height: 100%;
+  }
+  .link { fill: none; stroke: #bbb; stroke-width: 1.5px; stroke-dasharray: 3 3; }
+  .node circle { fill: #fff; stroke: #333; stroke-width: 1.5px; }
+  .node--collapsed circle { stroke-dasharray: 4 2; }
+  .node--expanded circle { stroke-dasharray: none; }
+  .node text { font-size: 13px; user-select: none; }
+  .root-label { font-size: 14px; font-weight: bold; fill: #0077ff; }
+  .node image { pointer-events: none; }
+</style>
+</head>
+<body>
+<header><h1>Portfolio Tree</h1></header>
+<div id="tree-container"><svg id="tree"></svg></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script>
+const data = {
+  name: "Abhishek Singh",
+  photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
+  blurb: "Welcome to my portfolio! Explore my skills, education, experience, and digital credentials.",
+  icon: "icons/profile.png",
+  children: [
+    // Skills, Education, Experience, Digital Credentials nodes
+    // ... same as your previous data (omitted for brevity)
+  ]
+};
+
+// --- D3 Tree Rendering ---
+const svg = d3.select("#tree"), g = svg.append("g");
+let width = window.innerWidth, height = window.innerHeight - document.querySelector('header').offsetHeight;
+let i = 0, duration = 400;
+const treeLayout = d3.tree().size([width, height]);
+let root = d3.hierarchy(data, d => d.children);
+root.x0 = width / 2; root.y0 = 0;
+
+function collapse(d){ if(d.children){ d._children=d.children; d._children.forEach(collapse); d.children=null; } }
+root.children.forEach(collapse);
+update(root);
+
+function update(source){
+  treeLayout(root);
+  const nodes = root.descendants();
+  const links = root.links();
+  nodes.forEach(d => d.y = d.depth * 180); // horizontal spacing
+
+  let node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++i));
+  const nodeEnter = node.enter().append("g")
+      .attr("class", d => d._children?"node node--collapsed":"node node--expanded")
+      .attr("transform", d=>`translate(${source.x0},${source.y0})`)
+      .on("click", (_,d)=>{ if(d.children){ d._children=d.children; d.children=null; } else { d.children=d._children; d._children=null; } update(d); });
+
+  nodeEnter.append("circle").attr("r",1e-6);
+  nodeEnter.filter(d=>d.data.icon).append("image")
+      .attr("xlink:href", d=>d.data.icon)
+      .attr("x",-12).attr("y",-12)
+      .attr("width",24).attr("height",24);
+  nodeEnter.filter(d=>d.depth===0).append("image")
+      .attr("xlink:href", d=>d.data.photo)
+      .attr("x",-25).attr("y",-25)
+      .attr("width",50).attr("height",50)
+      .style("clip-path","circle(25px at center)");
+
+  nodeEnter.append("text")
+      .attr("dy", d=>d.depth===0?40:-24)
+      .attr("text-anchor","middle")
+      .attr("class", d=>d.depth===0?"root-label":"")
+      .text(d=>d.data.name || d.data.year)
+      .style("fill-opacity",1e-6);
+
+  const nodeUpdate = nodeEnter.merge(node);
+  nodeUpdate.transition().duration(duration).attr("transform", d=>`translate(${d.x},${d.y})`);
+  nodeUpdate.select("circle").attr("r",18);
+  nodeUpdate.select("text").style("fill-opacity",1);
+
+  node.exit().transition().duration(duration).attr("transform", d=>`translate(${source.x},${source.y})`).remove();
+
+  let link = g.selectAll("path.link").data(links, d=>d.target.id);
+  const linkEnter = link.enter().insert("path","g").attr("class","link")
+      .attr("d", d=>{ let o={x:source.x0,y:source.y0}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o}); });
+  link.merge(linkEnter).transition().duration(duration).attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y));
+  link.exit().transition().duration(duration).attr("d", d=>{ let o={x:source.x,y:source.y}; return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o}); }).remove();
+
+  nodes.forEach(d=>{d.x0=d.x; d.y0=d.y;});
+}
+
+// --- Resize responsiveness ---
+window.addEventListener("resize", ()=> {
+  width = window.innerWidth;
+  height = window.innerHeight - document.querySelector('header').offsetHeight;
+  treeLayout.size([width, height]);
+  update(root);
+});
+</script>
+</body>
+</html>
