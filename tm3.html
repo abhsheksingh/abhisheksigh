@@ -22,10 +22,10 @@
     flex: 1; display: flex; overflow: hidden;
   }
   #tree-container {
-    flex: 2; display: flex; justify-content: center; align-items: center;
-    overflow: hidden;
+    flex: 2; display: flex; justify-content: center; align-items: flex-start;
+    overflow: auto; /* allow scrolling if tree grows */
   }
-  svg { width: 100%; height: 100%; }
+  svg { width: 100%; }
   #detail-panel {
     flex: 1; max-width: 350px;
     border-left: 1px solid #ddd;
@@ -65,7 +65,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
-// --- DATA ---
+// -------- DATA (full portfolio dataset) --------
 const data = {
   name: "Abhishek Singh",
   photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
@@ -77,98 +77,182 @@ const data = {
       blurb: "My technical skills.",
       icon: "icons/skills2.svg",
       children: [
-        { name: "Programming", icon: "icons/programming.svg", children: [
+        {
+          name: "Programming",
+          icon: "icons/programming.svg",
+          children: [
             { name: "Python", icon: "icons/python.svg", link: "https://www.python.org/" },
             { name: "R", icon: "icons/r.svg", link: "https://www.r-project.org/" },
-            { name: "JavaScript", icon: "icons/javascript.svg", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" }
+            { name: "JavaScript", icon: "icons/javascript.svg", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+            { name: "HTML", icon: "icons/html.svg", link: "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+            { name: "CSS", icon: "icons/css.svg", link: "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+            { name: "PHP", icon: "icons/php.svg", link: "https://www.php.net/" }
           ]
         },
-        { name: "Visualization", icon: "icons/visualization.svg", children: [
+        {
+          name: "Visualization",
+          icon: "icons/visualization.svg",
+          children: [
             { name: "Looker", icon: "icons/looker.svg", link: "https://looker.com/" },
             { name: "PowerBI", icon: "icons/powerbi.svg", link: "https://powerbi.microsoft.com/" }
+          ]
+        },
+        {
+          name: "Database",
+          icon: "icons/database.svg",
+          children: [
+            { name: "BigQuery", icon: "icons/bigquery.svg", link: "https://cloud.google.com/bigquery" },
+            { name: "Athena", icon: "icons/athena.svg", link: "https://aws.amazon.com/athena/" },
+            { name: "MySQL", icon: "icons/mysql.svg", link: "https://www.mysql.com/" },
+            { name: "PostgreSQL", icon: "icons/postgres.svg", link: "https://www.postgresql.org/" },
+            { name: "Amazon RDS", icon: "icons/rds.svg", link: "https://aws.amazon.com/rds/" },
+            { name: "MongoDB", icon: "icons/mongodb.svg", link: "https://www.mongodb.com/" }
+          ]
+        },
+        {
+          name: "Data Tools",
+          icon: "icons/visualization2.svg",
+          children: [
+            { name: "Scikit-learn", icon: "icons/scikit-learn.svg", link: "https://scikit-learn.org/" },
+            { name: "Pandas", icon: "icons/pandas.svg", link: "https://pandas.pydata.org/" },
+            { name: "NumPy", icon: "icons/numpy.svg", link: "https://numpy.org/" },
+            { name: "Jupyter", icon: "icons/jupyter.svg", link: "https://jupyter.org/" },
+            { name: "PySpark", icon: "icons/pyspark.svg", link: "https://pypi.org/project/pyspark/" },
+            { name: "Spark", icon: "icons/spark.svg", link: "https://spark.apache.org/" },
+            { name: "Airflow", icon: "icons/airflow.svg", link: "https://airflow.apache.org/" }
+          ]
+        },
+        {
+          name: "DevOps",
+          icon: "icons/devops.svg",
+          children: [
+            { name: "Docker", icon: "icons/docker.svg", link: "https://www.docker.com/" },
+            { name: "Git", icon: "icons/git.svg", link: "https://git-scm.com/" },
+            { name: "Linux/Unix", icon: "icons/linux.svg", link: "https://www.linux.org/" },
+            { name: "Slack", icon: "icons/slack.svg", link: "https://slack.com/" },
+            { name: "Cloud tech", icon: "icons/vpc.svg", children: [
+                { name: "GCP", icon: "icons/gcp.svg", link: "https://cloud.google.com" },
+                { name: "AWS", icon: "icons/aws.svg", link: "https://aws.amazon.com/" },
+                { name: "VPC", icon: "icons/vpc.svg", link: "https://aws.amazon.com/vpc/" }
+              ]
+            },
+            { name: "Security", icon: "icons/security.svg", link: "https://aws.amazon.com/security/" },
+            { name: "Vim/Nano", icon: "icons/editor.svg", link: "https://www.vim.org/" }
           ]
         }
       ]
     },
-    { name: "Education", blurb: "My academic background.", icon: "icons/education.svg", children: [
+    {
+      name: "Education",
+      blurb: "My academic background.",
+      icon: "icons/education.svg",
+      children: [
         { year: 2011, name: "B.Sc - University of Delhi", detail: "Life Sciences – First Division", icon: "icons/bachelor.svg" },
-        { year: 2015, name: "M.Sc - Central University of Punjab", detail: "Human Genetics – First Class Distinction", icon: "icons/college.png" }
+        { year: 2015, name: "M.Sc - Central University of Punjab", detail: "Human Genetics – First Class Distinction", icon: "icons/college.png" },
+        { year: 2020, name: "Masters - University of Liverpool", detail: "Data Science & AI – First Class Distinction", icon: "icons/uliv.svg" }
+      ]
+    },
+    {
+      name: "Experience",
+      blurb: "My professional experience over the years.",
+      icon: "icons/experience.svg",
+      children: [
+        { name: "Data Scientist - ONS", detail: "Office for National Statistics | Liverpool | UK 01/2023- Current", icon: "icons/ons.svg" },
+        { name: "Data Scientist - BioGrad Diagnostics", detail: "Liverpool | UK 11/2021-01/2023. SQL, ETL, Data Visualisation, Cloud (AWS), Reporting.", icon: "icons/experience.svg" },
+        { name: "Customer Service Advisor - Barclays", detail: "Liverpool | UK 03/2021-09/2021. Customer support, coordination, and service improvement.", icon: "icons/barclays.svg" },
+        { name: "Testing Support - University of Liverpool", detail: "Liverpool | UK 11/2020-04/2021. Part-time Test & Trace project.", icon: "icons/uliv1.svg" }
+      ]
+    },
+    {
+      name: "Digital Credentials",
+      blurb: "Certificates and Badges.",
+      icon: "icons/certificates.svg",
+      children: [
+        {
+          name: "Certificates",
+          icon: "icons/cert.svg",
+          children: [
+            { name: "Applied Data Science Capstone", link: "https://www.coursera.org/account/accomplishments/verify/...", icon: "icons/certificates.svg" }
+          ]
+        },
+        {
+          name: "Badges",
+          icon: "icons/badges.svg",
+          children: [
+            { name: "Python 101", icon: "icons/badges.svg", link: "https://www.credly.com/badges/8f794539-e7d1-408e-8aaa-910f8ab1668d" }
+          ]
+        }
       ]
     }
   ]
 };
 
-// --- D3 TREE ---
+// -------- D3 TREE --------
 const svg = d3.select("#tree"),
       g = svg.append("g").attr("transform", "translate(40,40)");
 
-let width = svg.node().clientWidth,
-    height = svg.node().clientHeight;
+let width = svg.node().clientWidth, height = svg.node().clientHeight;
 let i = 0, duration = 400;
+const levelHeight = 120;
+const treeLayout = d3.tree();
 
-const treeLayout = d3.tree().size([width - 100, height - 120]);
-
-let root = d3.hierarchy(data, d => d.children);
+let root = d3.hierarchy(data, d=>d.children);
 root.x0 = width/2; root.y0 = 0;
 root.children.forEach(collapse);
 
-// Collapse function (skip root)
-function collapse(d) {
-  if(d.depth === 0) return;
-  if(d.children) {
-    d._children = d.children;
-    d._children.forEach(collapse);
-    d.children = null;
-  }
+function collapse(d){
+  if(d.depth===0) return; // root always expanded
+  if(d.children){ d._children=d.children; d._children.forEach(collapse); d.children=null; }
 }
 
-// Show detail panel
-function showDetails(d) {
+function showDetails(d){
   const panel = document.getElementById("detail-panel");
   panel.querySelector(".panel-title").textContent = d.data.name || d.data.year;
   panel.querySelector(".panel-content").textContent = d.data.blurb || d.data.detail || "No details available.";
-  panel.classList.remove("hidden");
-  panel.classList.add("visible");
+  panel.classList.remove("hidden"); panel.classList.add("visible");
 }
 
-// Wrap long text
-function wrapText(text, width) {
-  text.each(function() {
-    const textEl = d3.select(this),
-          words = textEl.text().split(/\s+/).reverse();
+function wrapText(text, width){
+  text.each(function(){
+    const textEl=d3.select(this), words=textEl.text().split(/\s+/).reverse();
     let word, line=[], lineNumber=0, lineHeight=1.1,
-        y = textEl.attr("y"), dy=0,
-        tspan = textEl.text(null).append("tspan").attr("x",0).attr("y",y).attr("dy",dy+"em");
-    while(word = words.pop()){
-      line.push(word);
-      tspan.text(line.join(" "));
+        y=textEl.attr("y"), dy=0,
+        tspan=textEl.text(null).append("tspan").attr("x",0).attr("y",y).attr("dy",dy+"em");
+    while(word=words.pop()){
+      line.push(word); tspan.text(line.join(" "));
       if(tspan.node().getComputedTextLength() > width){
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = textEl.append("tspan").attr("x",0).attr("y",y).attr("dy",++lineNumber*lineHeight+dy+"em").text(word);
+        line.pop(); tspan.text(line.join(" "));
+        line=[word];
+        tspan=textEl.append("tspan").attr("x",0).attr("y",y).attr("dy",++lineNumber*lineHeight+dy+"em").text(word);
       }
     }
   });
 }
 
-// Update tree
-function update(source) {
+function getTreeHeight(rootNode){
+  let maxDepth=0;
+  rootNode.each(d=>{ if(d.depth>maxDepth) maxDepth=d.depth; });
+  return (maxDepth+1)*levelHeight;
+}
+
+function update(source){
+  const dynamicHeight = getTreeHeight(root);
+  svg.attr("height", dynamicHeight+80); // extra padding
+  treeLayout.size([width-100, dynamicHeight]);
+
   treeLayout(root);
-  const nodes = root.descendants();
-  const links = root.links();
-  nodes.forEach(d => d.y = d.depth*120);
+  const nodes=root.descendants(), links=root.links();
+  nodes.forEach(d=>d.y=d.depth*levelHeight);
 
-  let node = g.selectAll("g.node").data(nodes, d => d.id || (d.id=++i));
-
-  const nodeEnter = node.enter().append("g")
+  let node = g.selectAll("g.node").data(nodes,d=>d.id||(d.id=++i));
+  const nodeEnter=node.enter().append("g")
     .attr("class", d=>d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"))
     .attr("transform", d=>`translate(${source.x0},${source.y0})`)
-    .on("click", (_,d)=>{
-      if(d.data.link) window.open(d.data.link, "_blank");
+    .on("click",(_,d)=>{
+      if(d.data.link) window.open(d.data.link,"_blank");
       if(d.depth!==0){
         if(d.children){ d._children=d.children; d.children=null; }
-        else { d.children=d._children; d._children=null; }
+        else{ d.children=d._children; d._children=null; }
       }
       update(d); showDetails(d);
     });
@@ -186,41 +270,40 @@ function update(source) {
     .attr("dy", d=>d.depth===0?40:-24)
     .attr("text-anchor","middle")
     .attr("class", d=>d.depth===0?"root-label":"")
-    .text(d=>d.data.name || d.data.year)
-    .call(wrapText, 80)
+    .text(d=>d.data.name||d.data.year)
+    .call(wrapText,80)
     .style("fill-opacity",1e-6);
 
-  const nodeUpdate = nodeEnter.merge(node);
+  const nodeUpdate=nodeEnter.merge(node);
   nodeUpdate.transition().duration(duration).attr("transform", d=>`translate(${d.x},${d.y})`);
   nodeUpdate.select("circle").attr("r",18);
   nodeUpdate.select("text").style("fill-opacity",1);
   nodeUpdate.attr("class", d=>d.depth===0?"node root-node":(d._children?"node node--collapsed":"node node--expanded"));
 
-  const nodeExit = node.exit().transition().duration(duration)
+  const nodeExit=node.exit().transition().duration(duration)
     .attr("transform", d=>`translate(${source.x},${source.y})`).remove();
   nodeExit.select("circle").attr("r",1e-6);
   nodeExit.select("text").style("fill-opacity",1e-6);
 
-  let link = g.selectAll("path.link").data(links, d=>d.target.id);
-  const linkEnter = link.enter().insert("path","g").attr("class","link").attr("d", d=>{
-    let o={x:source.x0, y:source.y0};
+  let link=g.selectAll("path.link").data(links,d=>d.target.id);
+  const linkEnter=link.enter().insert("path","g").attr("class","link").attr("d", d=>{
+    let o={x:source.x0,y:source.y0};
     return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o});
   });
-
   link.merge(linkEnter).transition().duration(duration).attr("d", d3.linkVertical().x(d=>d.x).y(d=>d.y));
   link.exit().transition().duration(duration).attr("d", d=>{
     let o={x:source.x,y:source.y};
     return d3.linkVertical().x(d=>d.x).y(d=>d.y)({source:o,target:o});
   }).remove();
 
-  nodes.forEach(d=>{d.x0=d.x; d.y0=d.y;});
+  nodes.forEach(d=>{ d.x0=d.x; d.y0=d.y; });
 }
 
-// Resize handling
 function resize(){
-  width = svg.node().clientWidth; height = svg.node().clientHeight;
-  treeLayout.size([width-100,height-120]);
-  svg.attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+  width=svg.node().clientWidth;
+  const dynamicHeight = getTreeHeight(root);
+  svg.attr("height", dynamicHeight+80);
+  treeLayout.size([width-100,dynamicHeight]);
   update(root);
 }
 window.addEventListener("resize", resize);
