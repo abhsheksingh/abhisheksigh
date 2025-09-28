@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="964" height="964">
+  <style>
+    path {
+      stroke: black;              /* Add stroke (if you want outlines) */
+      stroke-width: 1.5;          /* Adjust thickness */
+      fill: none;                 /* Or keep fills if needed */
+      stroke-linecap: round;      /* Smooth line ends */
+      stroke-linejoin: round;     /* Smooth corners */
+      shape-rendering: geometricPrecision; /* High-quality rendering */
+    }
+  </style>
+
+  <path d="M0 0 C318.12 0 636.24 0 964 0 C964 318.12 964 636.24 964 964 C645.88 964 327.76 964 0 964 C0 645.88 0 327.76 0 0 Z " fill="#FEFEFE" transform="translate(0,0)"/>
+  <path d="M0 0 C3.23247466 1.12415256 6.48272648 2.1905171 9.73632812 3.25170898 ... Z " fill="#FDFDFD" transform="translate(572.423583984375,365.10400390625)"/>
+  <path d="M0 0 C3.23247466 1.12415256 ... Z " fill="#010101" transform="translate(572.423583984375,365.10400390625)"/>
+  <path d="M0 0 C-2.90820922 17.08572915 ... Z " fill="#010101" transform="translate(868,363)"/>
+  <path d="M0 0 C28.4375748 1.98153597 ... Z " fill="#010101" transform="translate(97,363)"/>
+  <path d="M0 0 C10.56 0 21.12 0 32 0 ... Z " fill="#020202" transform="translate(465,403)"/>
+  <path d="M0 0 C-0.82512892 6.62044613 ... Z " fill="#010101" transform="translate(810,430)"/>
+  <path d="M0 0 C1.71026367 0.43807983 ... Z " fill="#010101" transform="translate(153,428)"/>
+  <path d="M0 0 C-1.28343279 2.00573682 ... Z " fill="#020202" transform="translate(747,494)"/>
+  <path d="M0 0 C0.76296387 0.05913574 ... Z " fill="#010101"/>
+</svg>
