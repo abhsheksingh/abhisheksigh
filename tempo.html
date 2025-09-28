@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Skills — Badged Cards (DataViz style)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* DataViz-like card styling tweaks */
+    .card { @apply bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-150; }
+    .card-inner { @apply p-4 h-full flex flex-col; }
+    .card-figure { @apply w-12 h-12 rounded-lg flex items-center justify-center bg-slate-50 flex-none; }
+    .card-title { @apply mt-3 text-sm font-semibold text-slate-800; }
+    .card-sub { @apply text-xs text-slate-500; }
+    .grid-responsive { grid-template-columns: repeat(1, minmax(0,1fr)); }
+    @media (min-width: 640px) { .grid-responsive { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (min-width: 1024px) { .grid-responsive { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">Skills — DataViz-style cards</h1>
+        <p class="text-sm text-slate-600">Responsive card grid generated from hierarchical JSON. Click a section to open its page.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="downloadAll" class="px-3 py-2 text-sm rounded-lg bg-sky-600 text-white">Download All Sections</button>
+        <button id="downloadSection" class="px-3 py-2 text-sm rounded-lg border" title="Download currently viewed section">Download Current</button>
+      </div>
+    </header>
+
+    <main id="app">
+      <!-- index view -->
+      <section id="indexView">
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Raw JSON</label>
+          <textarea id="jsonInput" rows="10" class="w-full border rounded-lg p-3 text-xs font-mono text-slate-700" spellcheck="false"></textarea>
+          <div class="mt-3 flex gap-2">
+            <button id="renderBtn" class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm hover:bg-emerald-700">Load JSON</button>
+            <button id="resetBtn" class="px-4 py-2 rounded-lg border text-sm">Reset sample</button>
+          </div>
+        </div>
+
+        <div id="indexGrid" class="grid gap-6 grid-responsive"></div>
+      </section>
+
+      <!-- section view (single page) -->
+      <section id="sectionView" class="hidden">
+        <div class="mb-4 flex items-center justify-between">
+          <div>
+            <button id="backBtn" class="text-sm text-slate-600 hover:underline">← Back</button>
+            <h2 id="sectionTitle" class="text-xl font-semibold mt-2"></h2>
+            <p id="sectionBlurb" class="text-sm text-slate-500"></p>
+          </div>
+          <div class="text-sm text-slate-500">Standalone page ready</div>
+        </div>
+
+        <div id="sectionGrid" class="grid gap-6 grid-responsive"></div>
+      </section>
+    </main>
+
+    <footer class="mt-8 text-xs text-slate-500">Cards styled to match the aesthetic of datavizproject.com (rounded, shadowed, responsive). Icons use provided paths; if missing, placeholders are shown.</footer>
+  </div>
+
+  <script>
+    // Sample hierarchical JSON (converted to valid JSON keys)
+    const sample = {
+      "name": "Skills",
+      "blurb": "My technical skills.",
+      "icon": "icons/skills2.svg",
+      "children": [
+        {
+          "name": "Programming",
+          "icon": "icons/programming.svg",
+          "children": [
+            { "name": "Python", "icon": "icons/python.svg", "link": "https://www.python.org/" },
+            { "name": "R", "icon": "icons/r.svg", "link": "https://www.r-project.org/" },
+            { "name": "JavaScript", "icon": "icons/javascript.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+            { "name": "HTML", "icon": "icons/html.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+            { "name": "CSS", "icon": "icons/css.svg", "link": "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+            { "name": "PHP", "icon": "icons/php.svg", "link": "https://www.php.net/" }
+          ]
+        },
+        {
+          "name": "Visualization",
+          "icon": "icons/visualization.svg",
+          "children": [
+            { "name": "Looker", "icon": "icons/looker.svg", "link": "https://looker.com/" },
+            { "name": "PowerBI", "icon": "icons/powerbi.svg", "link": "https://powerbi.microsoft.com/" }
+          ]
+        },
+        {
+          "name": "Database",
+          "icon": "icons/database.svg",
+          "children": [
+            { "name": "BigQuery", "icon": "icons/bigquery.svg", "link": "https://cloud.google.com/bigquery" },
+            { "name": "Athena", "icon": "icons/athena.svg", "link": "https://aws.amazon.com/athena/" },
+            { "name": "MySQL", "icon": "icons/mysql.svg", "link": "https://www.mysql.com/" },
+            { "name": "PostgreSQL", "icon": "icons/postgres.svg", "link": "https://www.postgresql.org/" },
+            { "name": "Amazon RDS", "icon": "icons/rds.svg", "link": "https://aws.amazon.com/rds/" },
+            { "name": "MongoDB", "icon": "icons/mongodb.svg", "link": "https://www.mongodb.com/" }
+          ]
+        },
+        {
+          "name": "Data Tools",
+          "icon": "icons/visualization2.svg",
+          "children": [
+            { "name": "Scikit-learn", "icon": "icons/scikit-learn.svg", "link": "https://scikit-learn.org/" },
+            { "name": "Pandas", "icon": "icons/pandas.svg", "link": "https://pandas.pydata.org/" },
+            { "name": "NumPy", "icon": "icons/numpy.svg", "link": "https://numpy.org/" },
+            { "name": "Jupyter", "icon": "icons/jupyter.svg", "link": "https://jupyter.org/" },
+            { "name": "PySpark", "icon": "icons/pyspark.svg", "link": "https://pypi.org/project/pyspark/" },
+            { "name": "Spark", "icon": "icons/spark.svg", "link": "https://spark.apache.org/" },
+            { "name": "Airflow", "icon": "icons/airflow.svg", "link": "https://airflow.apache.org/" }
+          ]
+        },
+        {
+          "name": "DevOps",
+          "icon": "icons/devops.svg",
+          "children": [
+            { "name": "Docker", "icon": "icons/docker.svg", "link": "https://www.docker.com/" },
+            { "name": "Git", "icon": "icons/git.svg", "link": "https://git-scm.com/" },
+            { "name": "Linux/Unix", "icon": "icons/linux.svg", "link": "https://www.linux.org/" },
+            { "name": "Slack", "icon": "icons/slack.svg", "link": "https://slack.com/" },
+            { "name": "Cloud tech", "icon": "icons/vpc.svg", "children": [
+                { "name": "GCP", "icon": "icons/gcp.svg", "link": "https://cloud.google.com" },
+                { "name": "AWS", "icon": "icons/aws.svg", "link": "https://aws.amazon.com/" },
+                { "name": "VPC", "icon": "icons/vpc.svg", "link": "https://aws.amazon.com/vpc/" }
+              ]
+            },
+            { "name": "Security", "icon": "icons/security.svg", "link": "https://aws.amazon.com/security/" },
+            { "name": "Vim/Nano", "icon": "icons/editor.svg", "link": "https://www.vim.org/" }
+          ]
+        }
+      ]
+    };
+
+    // helpers
+    function el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
+
+    function renderIndex(root) {
+      const grid = document.getElementById('indexGrid');
+      grid.innerHTML = '';
+      (root.children || []).forEach(section => {
+        const a = el('a', 'card block');
+        a.href = '#';
+        a.addEventListener('click', (ev) => { ev.preventDefault(); openSection(section); });
+
+        const inner = el('div','card-inner');
+        const fig = el('div','card-figure');
+        const img = document.createElement('img');
+        img.src = section.icon || '';
+        img.alt = section.name;
+        img.className = 'w-8 h-8 object-contain';
+        img.onerror = function(){ this.style.display='none'; fig.textContent = section.name.charAt(0); };
+        fig.appendChild(img);
+
+        const title = el('div');
+        title.innerHTML = `<div class="card-title">${section.name}</div><div class="card-sub">${(section.children||[]).length} items</div>`;
+
+        inner.appendChild(fig);
+        inner.appendChild(title);
+        a.appendChild(inner);
+        grid.appendChild(a);
+      });
+    }
+
+    function renderSectionGrid(section, container) {
+      container.innerHTML = '';
+      (section.children || []).forEach(item => {
+        const card = el('div','card');
+        const inner = el('div','card-inner');
+
+        const top = el('div','flex items-center gap-3');
+        const fig = el('div','card-figure');
+        const img = document.createElement('img');
+        img.src = item.icon || '';
+        img.alt = item.name;
+        img.className = 'w-8 h-8 object-contain';
+        img.onerror = function(){ this.style.display='none'; fig.textContent = item.name.charAt(0); };
+        fig.appendChild(img);
+
+        const meta = el('div','min-w-0 flex-1');
+        const nm = el('div'); nm.className = 'text-sm font-semibold text-slate-800'; nm.textContent = item.name;
+        const sub = el('div'); sub.className = 'text-xs text-slate-500 truncate'; sub.textContent = item.link ? new URL(item.link).hostname : '';
+        meta.appendChild(nm); meta.appendChild(sub);
+        top.appendChild(fig); top.appendChild(meta);
+
+        inner.appendChild(top);
+
+        if (item.children && item.children.length) {
+          const coll = el('div','mt-3');
+          const btn = el('button','text-sm text-sky-600 hover:underline');
+          btn.textContent = `Show ${item.children.length} sub-items`;
+          const childGrid = el('div','mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3');
+          childGrid.style.display = 'none';
+          btn.addEventListener('click', () => { childGrid.style.display = childGrid.style.display === 'none' ? 'grid' : 'none'; btn.textContent = childGrid.style.display === 'none' ? `Show ${item.children.length} sub-items` : 'Hide sub-items'; });
+
+          item.children.forEach(c => {
+            const link = el('a','flex items-center gap-2 p-2 rounded-lg border text-sm hover:bg-slate-50');
+            link.href = c.link || '#';
+            link.target = c.link ? '_blank' : '_self';
+            const ci = document.createElement('img'); ci.src = c.icon || ''; ci.className = 'w-5 h-5 object-contain'; ci.onerror = function(){ this.style.display='none'; };
+            const lab = el('div'); lab.textContent = c.name;
+            link.appendChild(ci); link.appendChild(lab);
+            childGrid.appendChild(link);
+          });
+
+          coll.appendChild(btn); coll.appendChild(childGrid);
+          inner.appendChild(coll);
+        } else if (item.link) {
+          const linkWrap = el('div','mt-4');
+          const link = el('a','inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm');
+          link.href = item.link; link.target = '_blank';
+          const lab = el('span'); lab.textContent = 'Open';
+          link.appendChild(lab);
+          linkWrap.appendChild(link);
+          inner.appendChild(linkWrap);
+        }
+
+        card.appendChild(inner);
+        container.appendChild(card);
+      });
+    }
+
+    function openSection(section) {
+      document.getElementById('indexView').classList.add('hidden');
+      document.getElementById('sectionView').classList.remove('hidden');
+      document.getElementById('sectionTitle').textContent = section.name;
+      document.getElementById('sectionBlurb').textContent = section.blurb || '';
+      renderSectionGrid(section, document.getElementById('sectionGrid'));
+      // store current for download
+      window._currentSection = section;
+    }
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      document.getElementById('sectionView').classList.add('hidden');
+      document.getElementById('indexView').classList.remove('hidden');
+      window._currentSection = null;
+    });
+
+    document.getElementById('renderBtn').addEventListener('click', () => {
+      const raw = document.getElementById('jsonInput').value;
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') throw new Error('Top-level JSON must be an object');
+        // if it's a top-level wrapper like your sample, use it; otherwise if array, wrap
+        const root = parsed;
+        renderIndex(root);
+        // set sample name
+        document.title = (root.name || 'Skills') + ' — Badged Cards';
+      } catch (err) {
+        alert('Invalid JSON: ' + err.message);
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => { document.getElementById('jsonInput').value = JSON.stringify(sample, null, 2); document.getElementById('renderBtn').click(); });
+
+    // Download helpers: create a standalone HTML for a section
+    function sectionHTML(root, section) {
+      const safeJson = JSON.stringify({ root, section }, null, 2);
+      const html = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n<title>${escapeHtml(section.name)} — Skills</title>\n<script src=\"https://cdn.tailwindcss.com\"></script>\n<style> .card { padding:10px; border-radius:12px; box-shadow:0 4px 10px rgba(2,6,23,0.06);} </style>\n</head>\n<body class=\"bg-slate-50 p-6\">\n  <main class=\"max-w-6xl mx-auto\">\n    <h1 class=\"text-2xl font-semibold\">${escapeHtml(section.name)}</h1>\n    <p class=\"text-sm text-slate-600\">${escapeHtml(section.blurb || '')}</p>\n    <div class=\"mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3\">\n      ${section.children ? section.children.map(item => `
+        <a href=\"${item.link ? escapeAttr(item.link) : '#'}\" target=\"_blank\" class=\"card block\">\n          <div style=\"display:flex;gap:12px;align-items:center;\">\n            ${item.icon ? `<img src=\"${escapeAttr(item.icon)}\" alt=\"${escapeAttr(item.name)}\" style=\"width:40px;height:40px;object-fit:contain\" onerror=\"this.style.display='none'\"/>` : `<div style=\"width:40px;height:40px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center\">${escapeHtml(item.name.charAt(0))}</div>` }\n            <div>\n              <div style=\"font-weight:600\">${escapeHtml(item.name)}</div>\n              ${item.link ? `<div style=\"font-size:12px;color:#64748b\">${escapeHtml((new URL(item.link)).hostname)}</div>` : '' }\n            </div>\n          </div>\n        </a>`).join('\n') : '' }
+    </div>\n  </main>\n</body>\n</html>`;
+      return html;
+    }
+
+    function escapeHtml(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+    function escapeAttr(s){ return (s||'').toString().replaceAll('&','&amp;').replaceAll('"','&quot;'); }
+
+    document.getElementById('downloadSection').addEventListener('click', () => {
+      const section = window._currentSection;
+      if (!section) return alert('Open a section first');
+      const html = sectionHTML(sample, section);
+      downloadBlob(html, `${section.name.replace(/\s+/g,'_').toLowerCase()}.html`);
+    });
+
+    document.getElementById('downloadAll').addEventListener('click', () => {
+      // generate all section pages and zip? (simple approach: download each as separate file sequentially)
+      (sample.children || []).forEach(sec => {
+        const html = sectionHTML(sample, sec);
+        downloadBlob(html, `${sec.name.replace(/\s+/g,'_').toLowerCase()}.html`);
+      });
+    });
+
+    function downloadBlob(content, filename) {
+      const blob = new Blob([content], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    // initialize
+    document.getElementById('jsonInput').value = JSON.stringify(sample, null, 2);
+    document.getElementById('renderBtn').click();
+  </script>
+</body>
+</html>
